@@ -5,42 +5,87 @@
 // Cache to prevent multiple requests for the same search term
 const imageCache = new Map();
 
+// Mapping of product types to specific image URLs
+const productImageMapping = {
+    'smartphone': 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=300&h=300&fit=crop',
+    'wireless headphones': 'https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=300&h=300&fit=crop',
+    'cotton t-shirt': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop',
+    'smart watch': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop',
+    'denim jeans': 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=300&h=300&fit=crop',
+    'coffee maker': 'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=300&h=300&fit=crop',
+};
+
+// Category to generic image mapping as fallback
+const categoryImageMapping = {
+    'electronics': 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=300&h=300&fit=crop',
+    'clothing': 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=300&h=300&fit=crop',
+    'home': 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=300&h=300&fit=crop',
+};
+
 /**
- * Fetch an image from Unsplash API based on search term
- * Note: In a real application, you would need to register for an API key
- * This is a simplified implementation that uses public APIs with limitations
+ * Find the best matching product type for a given product name
+ */
+const findMatchingProductType = (productName) => {
+    const normalizedName = productName.toLowerCase();
+    // Try to find an exact match first
+    const exactMatch = Object.keys(productImageMapping).find(type =>
+        normalizedName === type.toLowerCase());
+
+    if (exactMatch) return exactMatch;
+
+    // Try to find a partial match
+    return Object.keys(productImageMapping).find(type =>
+        normalizedName.includes(type.toLowerCase()) ||
+        type.toLowerCase().includes(normalizedName));
+};
+
+/**
+ * Fetch an image for a product based on its name and category
  */
 export const fetchProductImage = async (productName, category) => {
-    const searchTerm = `${productName} ${category}`.trim();
+    const cacheKey = `${productName}:${category}`;
 
     // Check cache first
-    if (imageCache.has(searchTerm)) {
-        return imageCache.get(searchTerm);
+    if (imageCache.has(cacheKey)) {
+        return imageCache.get(cacheKey);
     }
 
-    // Attempt to get an image from Unsplash public API
-    // Note: This is rate-limited and should be replaced with a proper API key in production
+    // First try to match by product name against our predefined mappings
+    const matchingType = findMatchingProductType(productName);
+    if (matchingType && productImageMapping[matchingType]) {
+        const imageUrl = productImageMapping[matchingType];
+        imageCache.set(cacheKey, imageUrl);
+        return imageUrl;
+    }
+
+    // If no direct product match, try to use category
+    if (category && categoryImageMapping[category.toLowerCase()]) {
+        const imageUrl = categoryImageMapping[category.toLowerCase()];
+        imageCache.set(cacheKey, imageUrl);
+        return imageUrl;
+    }
+
+    // If still no match, fall back to Unsplash API
     try {
+        const searchTerm = `${productName} ${category}`.trim();
         const response = await fetch(`https://source.unsplash.com/300x300/?${encodeURIComponent(searchTerm)}`);
         if (response.ok) {
-            // Store the URL in cache
-            imageCache.set(searchTerm, response.url);
+            imageCache.set(cacheKey, response.url);
             return response.url;
         }
     } catch (error) {
         console.error('Failed to fetch image:', error);
     }
 
-    // Fallback to Picsum if Unsplash fails
+    // Ultimate fallback to Picsum with a consistent seed based on product name
     try {
-        // Use product name hash to get consistent image for the same product
         const hash = Math.abs(productName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000);
         const url = `https://picsum.photos/seed/${hash}/300/300`;
-        imageCache.set(searchTerm, url);
+        imageCache.set(cacheKey, url);
         return url;
     } catch (error) {
         console.error('Failed to fetch fallback image:', error);
-        return null;
+        return `https://placehold.co/300x300/e2e8f0/1e293b?text=${encodeURIComponent(productName)}`;
     }
 };
 
@@ -63,4 +108,18 @@ export const preloadProductImages = async (products) => {
             )
         );
     }
+};
+
+/**
+ * Add or update image mapping for a specific product type
+ */
+export const addProductImageMapping = (productType, imageUrl) => {
+    productImageMapping[productType.toLowerCase()] = imageUrl;
+};
+
+/**
+ * Add or update image mapping for a specific category
+ */
+export const addCategoryImageMapping = (category, imageUrl) => {
+    categoryImageMapping[category.toLowerCase()] = imageUrl;
 };

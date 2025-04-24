@@ -5,64 +5,6 @@ import { useCart } from '../../context/CartContext';
 import { FaShoppingCart, FaRegStar, FaStar, FaStarHalfAlt } from 'react-icons/fa';
 import { fetchProductImage } from '../../api/imageService';
 
-// Category to image mapping - Kept as fallback
-const categoryImages = {
-    electronics: '/images/categories/electronics.jpg',
-    clothing: '/images/categories/clothing.jpg',
-    home: '/images/categories/home.jpg',
-    books: '/images/categories/books.jpg',
-    toys: '/images/categories/toys.jpg',
-    sports: '/images/categories/sports.jpg',
-    beauty: '/images/categories/beauty.jpg',
-    jewelry: '/images/categories/jewelry.jpg',
-    // Add more categories as needed
-};
-
-// Default image paths by product type - Kept as fallback
-const productTypeImages = {
-    smartphone: '/images/categories/electronics/smartphone.jpg',
-    laptop: '/images/categories/electronics/laptop.jpg',
-    headphones: '/images/categories/electronics/headphones.jpg',
-    watch: '/images/categories/electronics/watch.jpg',
-    tshirt: '/images/categories/clothing/tshirt.jpg',
-    jeans: '/images/categories/clothing/jeans.jpg',
-    // Add more specific product types as needed
-};
-
-const getImageForProduct = async (product) => {
-    // Try to get image from our automatic image service
-    try {
-        const autoImage = await fetchProductImage(product.name, product.category);
-        if (autoImage) {
-            return autoImage;
-        }
-    } catch (error) {
-        console.error('Error fetching automatic image:', error);
-        // Continue to fallbacks if automatic fetch fails
-    }
-
-    // If product has a valid imageUrl, use it
-    if (product.imageUrl && !product.imageUrl.includes('placeholder')) {
-        return product.imageUrl;
-    }
-
-    // Try to match by product type (derived from name)
-    const productNameLower = product.name.toLowerCase();
-    for (const [type, image] of Object.entries(productTypeImages)) {
-        if (productNameLower.includes(type)) {
-            return image;
-        }
-    }
-
-    // Fall back to category image
-    if (product.category && categoryImages[product.category.toLowerCase()]) {
-        return categoryImages[product.category.toLowerCase()];
-    }
-
-    // Ultimate fallback: placeholder with product name
-    return `https://placehold.co/300x300/e2e8f0/1e293b?text=${product.name}`;
-};
-
 const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const [productImage, setProductImage] = useState(null);
@@ -72,8 +14,8 @@ const ProductCard = ({ product }) => {
         let isMounted = true;
         setIsImageLoading(true);
 
-        // Fetch product image when component mounts
-        getImageForProduct(product)
+        // Fetch product image when component mounts using the enhanced image service
+        fetchProductImage(product.name, product.category)
             .then(imageUrl => {
                 if (isMounted) {
                     setProductImage(imageUrl);
@@ -84,7 +26,7 @@ const ProductCard = ({ product }) => {
                 console.error(`Error loading image for ${product.name}:`, error);
                 if (isMounted) {
                     // Set fallback on error
-                    setProductImage(`https://placehold.co/300x300/e2e8f0/1e293b?text=${product.name}`);
+                    setProductImage(`https://placehold.co/300x300/e2e8f0/1e293b?text=${encodeURIComponent(product.name)}`);
                     setIsImageLoading(false);
                 }
             });
@@ -154,7 +96,7 @@ const ProductCard = ({ product }) => {
                             className="w-full h-48 object-cover hover:opacity-90 transition-opacity duration-300"
                             onError={(e) => {
                                 e.target.onerror = null;
-                                e.target.src = `https://placehold.co/300x300/e2e8f0/1e293b?text=${product.name}`;
+                                e.target.src = `https://placehold.co/300x300/e2e8f0/1e293b?text=${encodeURIComponent(product.name)}`;
                             }}
                         />
                     )}
