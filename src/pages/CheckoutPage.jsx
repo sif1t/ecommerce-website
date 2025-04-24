@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import { CartContext } from '../context/CartContext';
+import React from 'react';
+import { useCart } from '../context/CartContext';
 import Checkout from '../components/Cart/Checkout';
 
 const CheckoutPage = () => {
-    const { cartItems, totalAmount } = useContext(CartContext);
+    const { cartItems, totalAmount } = useCart();
 
     return (
         <div className="container mx-auto p-4">

@@ -1,0 +1,37 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Smartphone X",
+      "price": 699.99,
+      "description": "Latest generation smartphone with advanced camera system",
+      "image": "https://via.placeholder.com/300",
+      "category": "electronics"
+    },
+    {
+      "id": 2,
+      "name": "Wireless Headphones",
+      "price": 149.99,
+      "description": "Premium wireless headphones with noise cancellation",
+      "image": "https://via.placeholder.com/300",
+      "category": "electronics"
+    },
+    {
+      "id": 3,
+      "name": "Cotton T-shirt",
+      "price": 19.99,
+      "description": "Comfortable cotton t-shirt, available in various colors",
+      "image": "https://via.placeholder.com/300",
+      "category": "clothing"
+    }
+  ],
+  "cart": [],
+  "auth": {
+    "login": {
+      "token": "sample-jwt-token"
+    },
+    "register": {
+      "message": "Registration successful"
+    }
+  }
+}

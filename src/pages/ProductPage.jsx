@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getProductById } from '../api';
+import { fetchProductById } from '../api';
 import ProductDetail from '../components/Products/ProductDetail';
 
 const ProductPage = () => {
@@ -12,7 +12,7 @@ const ProductPage = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const data = await getProductById(id);
+                const data = await fetchProductById(id);
                 setProduct(data);
             } catch (err) {
                 setError(err.message);
