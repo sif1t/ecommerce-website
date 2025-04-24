@@ -22,9 +22,13 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
             <div className="flex items-center flex-1">
                 <Link to={`/product/${item.id}`}>
                     <img
-                        src={item.imageUrl || "https://via.placeholder.com/100"}
+                        src={item.imageUrl || `https://placehold.co/100x100/e2e8f0/1e293b?text=${item.name}`}
                         alt={item.name}
                         className="w-20 h-20 object-cover rounded-md mr-4 hover:opacity-80 transition-opacity"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = `https://placehold.co/100x100/e2e8f0/1e293b?text=${item.name}`;
+                        }}
                     />
                 </Link>
                 <div>

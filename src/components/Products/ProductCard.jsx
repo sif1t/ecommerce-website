@@ -57,9 +57,13 @@ const ProductCard = ({ product }) => {
             <Link to={`/product/${product.id}`} className="block h-full">
                 <div className="relative pb-2/3">
                     <img
-                        src={product.imageUrl || "https://via.placeholder.com/300"}
+                        src={product.imageUrl || `https://placehold.co/300x300/e2e8f0/1e293b?text=${product.name}`}
                         alt={product.name}
                         className="w-full h-48 object-cover hover:opacity-90 transition-opacity duration-300"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = `https://placehold.co/300x300/e2e8f0/1e293b?text=${product.name}`;
+                        }}
                     />
 
                     {product.stock <= 5 && product.stock > 0 && (
@@ -104,8 +108,8 @@ const ProductCard = ({ product }) => {
                             onClick={handleAddToCart}
                             disabled={product.stock === 0}
                             className={`flex items-center px-3 py-2 rounded-md text-sm ${product.stock > 0
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                    : 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                : 'bg-gray-300 cursor-not-allowed text-gray-500'
                                 }`}
                         >
                             <FaShoppingCart className="mr-1" />

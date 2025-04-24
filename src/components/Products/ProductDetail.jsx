@@ -131,11 +131,13 @@ const ProductDetail = ({ product }) => {
     };
 
     // Mock images for the gallery (in a real app, product would have multiple images)
+    const getDefaultImage = () => `https://placehold.co/600x600/e2e8f0/1e293b?text=${product.name}`;
+
     const images = [
-        product.imageUrl || "https://via.placeholder.com/600",
-        "https://via.placeholder.com/600?text=View+2",
-        "https://via.placeholder.com/600?text=View+3",
-        "https://via.placeholder.com/600?text=View+4"
+        product.imageUrl || getDefaultImage(),
+        `https://placehold.co/600x600/f1f5f9/334155?text=${product.name} View 2`,
+        `https://placehold.co/600x600/f8fafc/1e293b?text=${product.name} View 3`,
+        `https://placehold.co/600x600/e0f2fe/0c4a6e?text=${product.name} View 4`
     ];
 
     return (
@@ -154,6 +156,10 @@ const ProductDetail = ({ product }) => {
                             src={images[selectedImage]}
                             alt={product.name}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = getDefaultImage();
+                            }}
                         />
 
                         <button
@@ -192,6 +198,10 @@ const ProductDetail = ({ product }) => {
                                     src={image}
                                     alt={`${product.name} view ${index + 1}`}
                                     className="w-full h-20 object-cover hover:opacity-80 transition-opacity duration-200"
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = getDefaultImage();
+                                    }}
                                 />
                             </div>
                         ))}
@@ -258,10 +268,10 @@ const ProductDetail = ({ product }) => {
                         onClick={handleAddToCart}
                         disabled={product.stock === 0 || added}
                         className={`w-full py-3 px-6 rounded-md text-white font-medium flex items-center justify-center space-x-2 ${product.stock > 0 && !added
-                                ? 'bg-blue-600 hover:bg-blue-700'
-                                : added
-                                    ? 'bg-green-600'
-                                    : 'bg-gray-400 cursor-not-allowed'
+                            ? 'bg-blue-600 hover:bg-blue-700'
+                            : added
+                                ? 'bg-green-600'
+                                : 'bg-gray-400 cursor-not-allowed'
                             }`}
                     >
                         {added ? (
@@ -293,9 +303,13 @@ const ProductDetail = ({ product }) => {
                                 <div className="bg-white rounded-lg overflow-hidden border border-gray-200 transition-shadow group-hover:shadow-md">
                                     <div className="aspect-square overflow-hidden">
                                         <img
-                                            src={relatedProduct.imageUrl || "https://via.placeholder.com/300"}
+                                            src={relatedProduct.imageUrl || `https://placehold.co/300x300/e2e8f0/1e293b?text=${relatedProduct.name}`}
                                             alt={relatedProduct.name}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = `https://placehold.co/300x300/e2e8f0/1e293b?text=${relatedProduct.name}`;
+                                            }}
                                         />
                                     </div>
                                     <div className="p-4">
