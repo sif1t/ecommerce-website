@@ -13,6 +13,14 @@ const productImageMapping = {
     'smart watch': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop',
     'denim jeans': 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=300&h=300&fit=crop',
     'coffee maker': 'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=300&h=300&fit=crop',
+    'laptop': 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop',
+    'tablet': 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop',
+    'sweater': 'https://images.unsplash.com/photo-1580331452207-11471c63ff8d?w=300&h=300&fit=crop',
+    'dress': 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=300&h=300&fit=crop',
+    'sofa': 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&h=300&fit=crop',
+    'dining table': 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=300&h=300&fit=crop',
+    'desk lamp': 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop',
+    'sneakers': 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=300&h=300&fit=crop',
 };
 
 // Category to generic image mapping as fallback
@@ -20,6 +28,11 @@ const categoryImageMapping = {
     'electronics': 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=300&h=300&fit=crop',
     'clothing': 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=300&h=300&fit=crop',
     'home': 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=300&h=300&fit=crop',
+    'furniture': 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=300&h=300&fit=crop',
+    'accessories': 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=300&h=300&fit=crop',
+    'shoes': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop',
+    'kitchen': 'https://images.unsplash.com/photo-1556910096-5cdda80356fc?w=300&h=300&fit=crop',
+    'decor': 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=300&h=300&fit=crop',
 };
 
 /**

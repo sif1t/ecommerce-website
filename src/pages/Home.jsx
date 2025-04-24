@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fetchProducts } from '../api';
 import ProductCard from '../components/Products/ProductCard';
+import CategorySection from '../components/Layout/CategorySection';
 import { FaArrowRight, FaShippingFast, FaCreditCard, FaHeadset, FaCheck } from 'react-icons/fa';
 
 const Home = () => {
@@ -36,15 +37,18 @@ const Home = () => {
         <div className="bg-white">
             {/* Hero Section */}
             <div className="relative bg-gray-900 text-white overflow-hidden">
+                {/* Hero Background Image */}
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://via.placeholder.com/1920x800"
+                        src="/images/hero-background.jpg"
                         alt="Hero Background"
-                        className="w-full h-full object-cover opacity-40"
+                        className="w-full h-full object-cover opacity-30"
                     />
+                    {/* Dark overlay for better text visibility */}
+                    <div className="absolute inset-0 bg-[#121a2f] opacity-90"></div>
                 </div>
 
-                <div className="relative z-10 container mx-auto px-4 py-24 md:py-32">
+                <div className="relative z-10 container mx-auto px-4 py-28 md:py-36">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -135,6 +139,9 @@ const Home = () => {
                 </div>
             </div>
 
+            {/* Category Section - Using the new component */}
+            <CategorySection />
+
             {/* Featured Products */}
             <div className="py-16">
                 <div className="container mx-auto px-4">
@@ -190,60 +197,6 @@ const Home = () => {
                                 className="rounded-lg shadow-lg w-full h-auto"
                             />
                         </motion.div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Categories Section */}
-            <div className="py-16">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Shop by Category</h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Link to="/shop?category=electronics" className="group block relative rounded-lg overflow-hidden shadow-md">
-                            <img
-                                src="https://via.placeholder.com/400x300"
-                                alt="Electronics"
-                                className="w-full h-64 object-cover transform group-hover:scale-105 transition duration-300"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
-                                <div>
-                                    <h3 className="text-xl font-bold text-white mb-1">Electronics</h3>
-                                    <p className="text-gray-200 mb-2">Latest gadgets and tech</p>
-                                    <span className="text-blue-300 flex items-center">Shop Now <FaArrowRight className="ml-2" /></span>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link to="/shop?category=clothing" className="group block relative rounded-lg overflow-hidden shadow-md">
-                            <img
-                                src="https://via.placeholder.com/400x300"
-                                alt="Clothing"
-                                className="w-full h-64 object-cover transform group-hover:scale-105 transition duration-300"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
-                                <div>
-                                    <h3 className="text-xl font-bold text-white mb-1">Clothing</h3>
-                                    <p className="text-gray-200 mb-2">Fashion and apparel</p>
-                                    <span className="text-blue-300 flex items-center">Shop Now <FaArrowRight className="ml-2" /></span>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link to="/shop?category=home" className="group block relative rounded-lg overflow-hidden shadow-md">
-                            <img
-                                src="https://via.placeholder.com/400x300"
-                                alt="Home"
-                                className="w-full h-64 object-cover transform group-hover:scale-105 transition duration-300"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
-                                <div>
-                                    <h3 className="text-xl font-bold text-white mb-1">Home</h3>
-                                    <p className="text-gray-200 mb-2">Furniture and decor</p>
-                                    <span className="text-blue-300 flex items-center">Shop Now <FaArrowRight className="ml-2" /></span>
-                                </div>
-                            </div>
-                        </Link>
                     </div>
                 </div>
             </div>
