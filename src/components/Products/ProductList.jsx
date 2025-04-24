@@ -5,6 +5,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { fetchProducts, searchProducts } from '../../api';
 import ProductCard from './ProductCard';
 import { FaSearch, FaSort, FaFilter } from 'react-icons/fa';
+import { preloadProductImages } from '../../api/imageService';
 
 const ProductList = ({ category }) => {
     const [products, setProducts] = useState([]);
@@ -24,6 +25,11 @@ const ProductList = ({ category }) => {
                 const data = await fetchProducts(category);
                 setProducts(data);
                 setFilteredProducts(data);
+
+                // Preload product images in the background
+                preloadProductImages(data).catch(err =>
+                    console.error('Error preloading product images:', err)
+                );
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -73,6 +79,11 @@ const ProductList = ({ category }) => {
             const results = await searchProducts(searchTerm);
             setProducts(results);
             setFilteredProducts(results);
+
+            // Preload images for search results
+            preloadProductImages(results).catch(err =>
+                console.error('Error preloading search result images:', err)
+            );
         } catch (err) {
             setError(err.message);
         } finally {
