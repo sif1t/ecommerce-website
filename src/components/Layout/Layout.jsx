@@ -21,10 +21,12 @@ const Layout = ({ children }) => {
             <div className="mt-24">
                 <Navbar />
                 <div className="container mx-auto px-4 py-8">
-                    <div className="flex flex-col md:flex-row gap-6">
+                    <div className="flex flex-col md:flex-row gap-8">
                         {showSidebar && (
                             <div className="md:w-1/4 lg:w-1/5">
-                                <Sidebar />
+                                <div className="sticky top-28 transition-all duration-300">
+                                    <Sidebar />
+                                </div>
                             </div>
                         )}
                         <main className={`flex-grow ${showSidebar ? 'md:w-3/4 lg:w-4/5' : 'w-full'}`}>
