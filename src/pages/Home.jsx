@@ -300,8 +300,18 @@ const Home = () => {
             </div>
 
             {/* Promotional Banner */}
-            <div className="bg-blue-600 py-16">
-                <div className="container mx-auto px-4">
+            <div className="py-16 relative overflow-hidden">
+                {/* Background image with overlay */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="https://images.unsplash.com/photo-1520454974749-611b7248ffdb?q=80&w=2070&auto=format&fit=crop"
+                        alt="Summer background"
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-blue-600 opacity-80"></div>
+                </div>
+
+                <div className="container mx-auto px-4 relative z-10">
                     <div className="flex flex-col md:flex-row items-center justify-between">
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
@@ -318,7 +328,7 @@ const Home = () => {
                             </p>
                             <Link
                                 to="/shop"
-                                className="inline-block bg-white text-blue-600 py-3 px-8 rounded-md font-medium hover:bg-gray-100 transition"
+                                className="inline-block bg-white text-blue-600 py-3 px-8 rounded-md font-medium hover:bg-gray-100 transition shadow-md hover:shadow-lg"
                             >
                                 Shop the Sale
                             </Link>
@@ -328,12 +338,15 @@ const Home = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
                             viewport={{ once: true }}
-                            className="md:w-1/3"
+                            className="md:w-1/3 relative"
                         >
+                            <div className="absolute -top-4 -right-4 bg-yellow-400 text-blue-900 py-2 px-4 rounded-full transform rotate-12 font-bold shadow-lg">
+                                SALE
+                            </div>
                             <img
-                                src="https://via.placeholder.com/500x400"
+                                src="https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=500&auto=format&fit=crop"
                                 alt="Summer Sale"
-                                className="rounded-lg shadow-lg w-full h-auto"
+                                className="rounded-lg shadow-lg w-full h-auto object-cover"
                             />
                         </motion.div>
                     </div>
