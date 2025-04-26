@@ -23,10 +23,10 @@ const Login = () => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        
+
         try {
             const success = await login({ email, password });
-            
+
             if (success) {
                 // If remember me is checked, we could store additional preferences
                 // Note: actual auth token is handled by AuthContext
@@ -35,7 +35,7 @@ const Login = () => {
                 } else {
                     localStorage.removeItem('userEmail');
                 }
-                
+
                 // Redirect to the original requested page or home
                 navigate(from, { replace: true });
             }
@@ -66,14 +66,14 @@ const Login = () => {
                         <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
                         <p className="text-blue-100">Sign in to your account to continue</p>
                     </div>
-                    
+
                     <div className="p-6">
                         {error && (
                             <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded">
                                 <p>{error}</p>
                             </div>
                         )}
-                        
+
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
                                 <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">
@@ -94,7 +94,7 @@ const Login = () => {
                                     />
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="password">
                                     Password
@@ -121,7 +121,7 @@ const Login = () => {
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center">
                                     <input
@@ -142,20 +142,19 @@ const Login = () => {
                                     </Link>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                                        isLoading ? "opacity-70 cursor-not-allowed" : ""
-                                    }`}
+                                    className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isLoading ? "opacity-70 cursor-not-allowed" : ""
+                                        }`}
                                 >
                                     {isLoading ? "Signing in..." : "Sign In"}
                                 </button>
                             </div>
                         </form>
-                        
+
                         <div className="mt-6">
                             <div className="relative">
                                 <div className="absolute inset-0 flex items-center">
@@ -165,7 +164,7 @@ const Login = () => {
                                     <span className="px-2 bg-white text-gray-500">Or continue with</span>
                                 </div>
                             </div>
-                            
+
                             <div className="mt-6 grid grid-cols-2 gap-3">
                                 <button
                                     onClick={() => handleSocialLogin('Google')}
@@ -183,7 +182,7 @@ const Login = () => {
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div className="mt-6 text-center">
                             <p className="text-sm text-gray-600">
                                 Don't have an account?{' '}

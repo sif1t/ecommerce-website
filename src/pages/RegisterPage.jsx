@@ -14,7 +14,7 @@ const RegisterPage = () => {
                 <title>Create Account | Your E-Commerce Shop</title>
                 <meta name="description" content="Join our community and create your account to enjoy exclusive deals, faster checkout, and order tracking." />
             </Helmet>
-            
+
             <Register />
         </motion.div>
     );

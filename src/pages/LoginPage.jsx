@@ -14,7 +14,7 @@ const LoginPage = () => {
                 <title>Sign In | Your E-Commerce Shop</title>
                 <meta name="description" content="Sign in to your account to access personalized shopping, order history, and more." />
             </Helmet>
-            
+
             <Login />
         </motion.div>
     );
