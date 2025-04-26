@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { createOrder } from '../../api';
+import { fetchProductImage } from '../../api/imageService';
 import { FaLock, FaCheck, FaCreditCard, FaUser, FaTruck } from 'react-icons/fa';
 
 const Checkout = () => {
@@ -37,6 +38,42 @@ const Checkout = () => {
         orderNotes: '',
         saveInfo: true
     });
+
+    // State to store processed images
+    const [itemImages, setItemImages] = useState({});
+
+    // Fetch product images when cart items change
+    useEffect(() => {
+        const loadImages = async () => {
+            const imagePromises = cartItems.map(async (item) => {
+                // Skip if already has image or if already fetching
+                if (item.imageUrl || itemImages[item.id]) return { id: item.id, image: item.imageUrl };
+
+                try {
+                    const imageUrl = await fetchProductImage(item.name, item.category);
+                    return { id: item.id, image: imageUrl };
+                } catch (error) {
+                    console.error(`Error loading image for ${item.name}:`, error);
+                    return {
+                        id: item.id,
+                        image: `https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(item.name)}`
+                    };
+                }
+            });
+
+            const results = await Promise.all(imagePromises);
+
+            // Create a map of item id to image URL
+            const newImages = results.reduce((acc, { id, image }) => {
+                if (image) acc[id] = image;
+                return acc;
+            }, {});
+
+            setItemImages(prevImages => ({ ...prevImages, ...newImages }));
+        };
+
+        loadImages();
+    }, [cartItems]);
 
     // Calculate additional costs
     const calculateShipping = () => {
@@ -115,6 +152,13 @@ const Checkout = () => {
         if (newStep < step) {
             setStep(newStep);
         }
+    };
+
+    // Get image URL for an item, using our cached images if available
+    const getItemImage = (item) => {
+        if (item.imageUrl) return item.imageUrl;
+        if (itemImages[item.id]) return itemImages[item.id];
+        return `https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(item.name)}`;
     };
 
     // If order is complete, show confirmation
@@ -483,9 +527,13 @@ const Checkout = () => {
                                         <div key={item.id} className="flex justify-between py-3 border-b border-gray-100">
                                             <div className="flex items-center">
                                                 <img
-                                                    src={item.imageUrl || "https://via.placeholder.com/80"}
+                                                    src={getItemImage(item)}
                                                     alt={item.name}
                                                     className="w-16 h-16 object-cover rounded-md mr-4"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = `https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(item.name)}`;
+                                                    }}
                                                 />
                                                 <div>
                                                     <h3 className="font-medium">{item.name}</h3>

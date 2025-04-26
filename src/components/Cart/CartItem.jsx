@@ -10,7 +10,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
 
     useEffect(() => {
         let isMounted = true;
-        
+
         // First try to use existing imageUrl from the item
         if (item.imageUrl) {
             setProductImage(item.imageUrl);
