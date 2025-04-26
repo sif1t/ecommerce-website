@@ -1,6 +1,15 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getUser, loginUser, registerUser, logoutUser } from '../api';
 import { toast } from 'react-toastify';
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+    signInWithPopup,
+    GoogleAuthProvider,
+    FacebookAuthProvider,
+    onAuthStateChanged
+} from 'firebase/auth';
+import { auth } from '../firebase/firebase';
 
 export const AuthContext = createContext();
 
@@ -9,78 +18,139 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Set up auth state listener
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                // Check for auth token in localStorage
-                const token = localStorage.getItem('authToken');
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser ? {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                name: currentUser.displayName || 'User',
+                photoURL: currentUser.photoURL
+            } : null);
+            setLoading(false);
+        });
 
-                if (token) {
-                    const currentUser = await getUser();
-                    setUser(currentUser);
-                }
-            } catch (err) {
-                console.error('Authentication error:', err);
-                // Clear invalid token
-                localStorage.removeItem('authToken');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUser();
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
     }, []);
 
+    // Email/Password Login
     const login = async (credentials) => {
         try {
             setError(null);
             setLoading(true);
-            const { user: loggedInUser, token } = await loginUser(credentials);
+            const { email, password } = credentials;
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const loggedInUser = userCredential.user;
 
-            // Store token for persistent login
-            localStorage.setItem('authToken', token);
-            setUser(loggedInUser);
-            toast.success(`Welcome back, ${loggedInUser.name || 'User'}!`);
+            toast.success(`Welcome back, ${loggedInUser.displayName || 'User'}!`);
             return true;
         } catch (err) {
-            setError(err.message || 'Failed to login');
-            toast.error(err.message || 'Invalid credentials');
+            const errorMessage = getFirebaseAuthErrorMessage(err);
+            setError(errorMessage);
+            toast.error(errorMessage);
             return false;
         } finally {
             setLoading(false);
         }
     };
 
+    // Register with Email/Password
     const register = async (userData) => {
         try {
             setError(null);
             setLoading(true);
-            const { user: newUser, token } = await registerUser(userData);
+            const { email, password, name } = userData;
 
-            // Store token for persistent login
-            localStorage.setItem('authToken', token);
-            setUser(newUser);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+            // You can update the user profile here if needed
+            // await updateProfile(userCredential.user, { displayName: name });
+
             toast.success('Registration successful!');
             return true;
         } catch (err) {
-            setError(err.message || 'Failed to register');
-            toast.error(err.message || 'Registration failed');
+            const errorMessage = getFirebaseAuthErrorMessage(err);
+            setError(errorMessage);
+            toast.error(errorMessage);
             return false;
         } finally {
             setLoading(false);
         }
     };
 
+    // Google Sign In
+    const signInWithGoogle = async () => {
+        try {
+            setError(null);
+            setLoading(true);
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+            toast.success('Successfully signed in with Google!');
+            return true;
+        } catch (err) {
+            const errorMessage = getFirebaseAuthErrorMessage(err);
+            setError(errorMessage);
+            toast.error(errorMessage);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Facebook Sign In
+    const signInWithFacebook = async () => {
+        try {
+            setError(null);
+            setLoading(true);
+            const provider = new FacebookAuthProvider();
+            await signInWithPopup(auth, provider);
+            toast.success('Successfully signed in with Facebook!');
+            return true;
+        } catch (err) {
+            const errorMessage = getFirebaseAuthErrorMessage(err);
+            setError(errorMessage);
+            toast.error(errorMessage);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Logout
     const logout = async () => {
         try {
-            await logoutUser();
-            localStorage.removeItem('authToken');
-            setUser(null);
+            await signOut(auth);
             toast.info('You have been logged out');
         } catch (err) {
             console.error('Logout error:', err);
-            // Force logout on client side even if API fails
-            localStorage.removeItem('authToken');
-            setUser(null);
+            toast.error('Error during logout');
+        }
+    };
+
+    // Helper function to handle Firebase auth errors
+    const getFirebaseAuthErrorMessage = (error) => {
+        switch (error.code) {
+            case 'auth/invalid-email':
+                return 'Invalid email address format.';
+            case 'auth/user-disabled':
+                return 'This account has been disabled.';
+            case 'auth/user-not-found':
+                return 'No account found with this email.';
+            case 'auth/wrong-password':
+                return 'Invalid password.';
+            case 'auth/email-already-in-use':
+                return 'Email already in use.';
+            case 'auth/weak-password':
+                return 'Password is too weak.';
+            case 'auth/popup-closed-by-user':
+                return 'Authentication popup was closed before completion.';
+            case 'auth/account-exists-with-different-credential':
+                return 'An account already exists with the same email address but different sign-in credentials.';
+            case 'auth/cancelled-popup-request':
+                return 'The authentication request was cancelled.';
+            default:
+                return error.message || 'An unknown error occurred.';
         }
     };
 
@@ -92,6 +162,8 @@ export const AuthProvider = ({ children }) => {
             isAuthenticated: !!user,
             login,
             register,
+            signInWithGoogle,
+            signInWithFacebook,
             logout
         }}>
             {children}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash, FaLock, FaEnvelope } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
@@ -12,12 +12,21 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const { login } = useAuth();
+    const { login, signInWithGoogle, signInWithFacebook } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
     // Get redirect path from location state or default to home page
     const from = location.state?.from?.pathname || '/';
+
+    // Check if there's a saved email for "Remember me"
+    useEffect(() => {
+        const savedEmail = localStorage.getItem('userEmail');
+        if (savedEmail) {
+            setEmail(savedEmail);
+            setRememberMe(true);
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,8 +37,7 @@ const Login = () => {
             const success = await login({ email, password });
 
             if (success) {
-                // If remember me is checked, we could store additional preferences
-                // Note: actual auth token is handled by AuthContext
+                // If remember me is checked, save the email
                 if (rememberMe) {
                     localStorage.setItem('userEmail', email);
                 } else {
@@ -46,11 +54,36 @@ const Login = () => {
         }
     };
 
-    const handleSocialLogin = (provider) => {
-        // This would be implemented with actual OAuth integration
-        console.log(`Login with ${provider}`);
-        // For now, just show an alert
-        alert(`${provider} login is not implemented yet`);
+    const handleGoogleLogin = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const success = await signInWithGoogle();
+            if (success) {
+                navigate(from, { replace: true });
+            }
+        } catch (err) {
+            setError('Google sign-in failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFacebookLogin = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const success = await signInWithFacebook();
+            if (success) {
+                navigate(from, { replace: true });
+            }
+        } catch (err) {
+            setError('Facebook sign-in failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -167,15 +200,19 @@ const Login = () => {
 
                             <div className="mt-6 grid grid-cols-2 gap-3">
                                 <button
-                                    onClick={() => handleSocialLogin('Google')}
-                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                    type="button"
+                                    onClick={handleGoogleLogin}
+                                    disabled={isLoading}
+                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
                                     <FaGoogle className="mr-2 text-red-600" />
                                     Google
                                 </button>
                                 <button
-                                    onClick={() => handleSocialLogin('Facebook')}
-                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                    type="button"
+                                    onClick={handleFacebookLogin}
+                                    disabled={isLoading}
+                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
                                     <FaFacebook className="mr-2 text-blue-600" />
                                     Facebook

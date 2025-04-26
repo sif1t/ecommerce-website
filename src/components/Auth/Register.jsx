@@ -18,7 +18,7 @@ const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
 
-    const { register } = useAuth();
+    const { register, signInWithGoogle, signInWithFacebook } = useAuth();
     const navigate = useNavigate();
 
     const { firstName, lastName, email, password, confirmPassword } = formData;
@@ -103,10 +103,38 @@ const Register = () => {
         }
     };
 
-    const handleSocialRegister = (provider) => {
-        // This would be implemented with actual OAuth integration
-        console.log(`Register with ${provider}`);
-        alert(`${provider} registration is not implemented yet`);
+    const handleGoogleRegister = async () => {
+        setIsLoading(true);
+        try {
+            const success = await signInWithGoogle();
+            if (success) {
+                navigate('/');
+            }
+        } catch (err) {
+            console.error('Google registration error:', err);
+            setErrors({
+                general: 'Google sign-up failed. Please try again later.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFacebookRegister = async () => {
+        setIsLoading(true);
+        try {
+            const success = await signInWithFacebook();
+            if (success) {
+                navigate('/');
+            }
+        } catch (err) {
+            console.error('Facebook registration error:', err);
+            setErrors({
+                general: 'Facebook sign-up failed. Please try again later.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -301,15 +329,19 @@ const Register = () => {
 
                             <div className="mt-6 grid grid-cols-2 gap-3">
                                 <button
-                                    onClick={() => handleSocialRegister('Google')}
-                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                    type="button"
+                                    onClick={handleGoogleRegister}
+                                    disabled={isLoading}
+                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
                                     <FaGoogle className="mr-2 text-red-600" />
                                     Google
                                 </button>
                                 <button
-                                    onClick={() => handleSocialRegister('Facebook')}
-                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                    type="button"
+                                    onClick={handleFacebookRegister}
+                                    disabled={isLoading}
+                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
                                     <FaFacebook className="mr-2 text-blue-600" />
                                     Facebook
