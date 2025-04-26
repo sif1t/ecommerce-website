@@ -1,9 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
+import { fetchProductImage } from '../../api/imageService';
 
 const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
+    const [productImage, setProductImage] = useState(item.imageUrl || null);
+    const [isImageLoading, setIsImageLoading] = useState(true);
+
+    useEffect(() => {
+        let isMounted = true;
+        
+        // First try to use existing imageUrl from the item
+        if (item.imageUrl) {
+            setProductImage(item.imageUrl);
+            setIsImageLoading(false);
+            return;
+        }
+
+        // If no imageUrl, try to fetch product image
+        fetchProductImage(item.name, item.category)
+            .then(imageUrl => {
+                if (isMounted) {
+                    setProductImage(imageUrl);
+                    setIsImageLoading(false);
+                }
+            })
+            .catch(error => {
+                console.error(`Error loading image for ${item.name}:`, error);
+                if (isMounted) {
+                    // Set fallback on error
+                    setProductImage(`https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(item.name)}`);
+                    setIsImageLoading(false);
+                }
+            });
+
+        return () => {
+            isMounted = false; // Cleanup to prevent setting state on unmounted component
+        };
+    }, [item]);
+
+    const handleImageError = () => {
+        setProductImage(`https://placehold.co/100x100/e2e8f0/1e293b?text=${encodeURIComponent(item.name)}`);
+    };
+
     const handleQuantityChange = (newQuantity) => {
         if (newQuantity >= 1) {
             onUpdateQuantity(item.id, newQuantity);
@@ -21,15 +61,18 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
             {/* Product image and info */}
             <div className="flex items-center flex-1">
                 <Link to={`/product/${item.id}`}>
-                    <img
-                        src={item.imageUrl || `https://placehold.co/100x100/e2e8f0/1e293b?text=${item.name}`}
-                        alt={item.name}
-                        className="w-20 h-20 object-cover rounded-md mr-4 hover:opacity-80 transition-opacity"
-                        onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = `https://placehold.co/100x100/e2e8f0/1e293b?text=${item.name}`;
-                        }}
-                    />
+                    {isImageLoading ? (
+                        <div className="w-20 h-20 bg-gray-200 animate-pulse flex items-center justify-center rounded-md mr-4">
+                            <span className="text-gray-400 text-xs">Loading</span>
+                        </div>
+                    ) : (
+                        <img
+                            src={productImage}
+                            alt={item.name}
+                            className="w-20 h-20 object-cover rounded-md mr-4 hover:opacity-80 transition-opacity"
+                            onError={handleImageError}
+                        />
+                    )}
                 </Link>
                 <div>
                     <Link to={`/product/${item.id}`} className="hover:text-blue-600">

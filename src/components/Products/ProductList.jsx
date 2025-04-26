@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { fetchProducts, searchProducts } from '../../api';
 import ProductCard from './ProductCard';
-import { FaSearch, FaSort, FaFilter } from 'react-icons/fa';
+import { FaSearch, FaSort, FaFilter, FaChevronLeft, FaChevronRight, FaStar, FaTags } from 'react-icons/fa';
 import { preloadProductImages } from '../../api/imageService';
 
 const ProductList = ({ category }) => {
@@ -16,6 +16,11 @@ const ProductList = ({ category }) => {
     const [sortOption, setSortOption] = useState('');
     const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
     const [filterOpen, setFilterOpen] = useState(false);
+    const [featuredProducts, setFeaturedProducts] = useState([]);
+    const [onSaleProducts, setOnSaleProducts] = useState([]);
+    const [productsByCategory, setProductsByCategory] = useState({});
+
+    const carouselRef = useRef(null);
 
     // Fetch products
     useEffect(() => {
@@ -25,6 +30,27 @@ const ProductList = ({ category }) => {
                 const data = await fetchProducts(category);
                 setProducts(data);
                 setFilteredProducts(data);
+
+                // Extract featured products (highest rated)
+                const featured = [...data]
+                    .sort((a, b) => b.rating - a.rating)
+                    .slice(0, 8);
+                setFeaturedProducts(featured);
+
+                // Extract on sale products
+                const onSale = data.filter(p => p.onSale || (p.originalPrice && p.originalPrice > p.price));
+                setOnSaleProducts(onSale);
+
+                // Group products by category
+                const byCategory = data.reduce((acc, product) => {
+                    const category = product.category;
+                    if (!acc[category]) {
+                        acc[category] = [];
+                    }
+                    acc[category].push(product);
+                    return acc;
+                }, {});
+                setProductsByCategory(byCategory);
 
                 // Preload product images in the background
                 preloadProductImages(data).catch(err =>
@@ -91,9 +117,24 @@ const ProductList = ({ category }) => {
         }
     };
 
+    // Carousel navigation
+    const scrollCarousel = (direction) => {
+        if (carouselRef.current) {
+            const { scrollLeft, clientWidth } = carouselRef.current;
+            const scrollTo = direction === 'left'
+                ? scrollLeft - clientWidth / 2
+                : scrollLeft + clientWidth / 2;
+
+            carouselRef.current.scrollTo({
+                left: scrollTo,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     // Generate skeleton loaders
-    const renderSkeletons = () => {
-        return Array(8).fill().map((_, index) => (
+    const renderSkeletons = (count = 8) => {
+        return Array(count).fill().map((_, index) => (
             <div key={`skeleton-${index}`} className="bg-white rounded-lg overflow-hidden border border-gray-200 p-4">
                 <Skeleton height={200} className="mb-4" />
                 <Skeleton height={20} width={150} className="mb-2" />
@@ -106,6 +147,17 @@ const ProductList = ({ category }) => {
             </div>
         ));
     };
+
+    // Render section divider with title
+    const SectionTitle = ({ title, icon, color = "blue" }) => (
+        <div className="flex items-center mb-6 mt-12">
+            <div className={`h-12 w-12 rounded-full bg-${color}-100 flex items-center justify-center mr-4`}>
+                {icon}
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+            <div className={`h-0.5 bg-${color}-100 flex-grow ml-6`}></div>
+        </div>
+    );
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -191,8 +243,8 @@ const ProductList = ({ category }) => {
                 )}
             </div>
 
-            {/* Results count */}
-            {!loading && (
+            {/* Results count when searching/filtering */}
+            {!loading && searchTerm && (
                 <p className="text-gray-600 mb-4">
                     Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
                     {category ? ` in ${category}` : ''}
@@ -203,20 +255,100 @@ const ProductList = ({ category }) => {
             {/* Error message */}
             {error && <div className="bg-red-100 text-red-700 p-4 rounded mb-4">Error: {error}</div>}
 
-            {/* Product grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {loading ? renderSkeletons() : (
-                    filteredProducts.length > 0 ? (
-                        filteredProducts.map(product => (
-                            <ProductCard key={product.id} product={product} />
-                        ))
-                    ) : (
-                        <div className="col-span-full text-center py-8">
-                            <p className="text-gray-500 text-lg">No products found. Try adjusting your filters.</p>
+            {/* Featured Products Carousel (shown only when not searching) */}
+            {!loading && !searchTerm && featuredProducts.length > 0 && (
+                <div className="mb-12">
+                    <SectionTitle
+                        title="Featured Products"
+                        icon={<FaStar className="text-amber-500 text-xl" />}
+                        color="amber"
+                    />
+                    <div className="relative">
+                        <button
+                            onClick={() => scrollCarousel('left')}
+                            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-lg h-10 w-10 flex items-center justify-center hover:bg-gray-100"
+                        >
+                            <FaChevronLeft />
+                        </button>
+
+                        <div
+                            ref={carouselRef}
+                            className="flex overflow-x-auto gap-4 pb-4 snap-x scroll-smooth hide-scrollbar"
+                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        >
+                            {featuredProducts.map(product => (
+                                <div
+                                    key={`featured-${product.id}`}
+                                    className="min-w-[280px] snap-start"
+                                >
+                                    <ProductCard product={product} />
+                                </div>
+                            ))}
                         </div>
-                    )
-                )}
-            </div>
+
+                        <button
+                            onClick={() => scrollCarousel('right')}
+                            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-lg h-10 w-10 flex items-center justify-center hover:bg-gray-100"
+                        >
+                            <FaChevronRight />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* On Sale Products (shown only when not searching) */}
+            {!loading && !searchTerm && onSaleProducts.length > 0 && (
+                <div className="mb-12">
+                    <SectionTitle
+                        title="Special Deals"
+                        icon={<FaTags className="text-red-500 text-xl" />}
+                        color="red"
+                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {onSaleProducts.slice(0, 8).map(product => (
+                            <ProductCard key={`sale-${product.id}`} product={product} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Products by Category (shown only when not searching/filtering) */}
+            {!loading && !searchTerm && !category && Object.keys(productsByCategory).length > 0 &&
+                Object.entries(productsByCategory).map(([categoryName, categoryProducts]) => (
+                    <div key={categoryName} className="mb-12">
+                        <SectionTitle
+                            title={categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
+                            icon={
+                                <div className="text-lg font-bold text-blue-600">
+                                    {categoryName.charAt(0).toUpperCase()}
+                                </div>
+                            }
+                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {categoryProducts.slice(0, 4).map(product => (
+                                <ProductCard key={`${categoryName}-${product.id}`} product={product} />
+                            ))}
+                        </div>
+                    </div>
+                ))
+            }
+
+            {/* Regular product grid (shown when searching or filtering) */}
+            {searchTerm || category ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {loading ? renderSkeletons() : (
+                        filteredProducts.length > 0 ? (
+                            filteredProducts.map(product => (
+                                <ProductCard key={product.id} product={product} />
+                            ))
+                        ) : (
+                            <div className="col-span-full text-center py-8">
+                                <p className="text-gray-500 text-lg">No products found. Try adjusting your filters.</p>
+                            </div>
+                        )
+                    )}
+                </div>
+            ) : null}
         </div>
     );
 };
