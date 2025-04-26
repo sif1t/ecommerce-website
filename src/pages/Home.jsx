@@ -171,8 +171,8 @@ const Home = () => {
                                 key={index}
                                 onClick={() => setCurrentSlide(index)}
                                 className={`w-3 h-3 rounded-full transition-all ${index === currentSlide
-                                        ? 'bg-white w-10'
-                                        : 'bg-white/50 hover:bg-white/80'
+                                    ? 'bg-white w-10'
+                                    : 'bg-white/50 hover:bg-white/80'
                                     }`}
                                 aria-label={`Go to slide ${index + 1}`}
                             />
@@ -252,6 +252,29 @@ const Home = () => {
                         <Link to="/shop" className="text-blue-600 hover:text-blue-800 flex items-center transition">
                             View All <FaArrowRight className="ml-2" />
                         </Link>
+                    </div>
+
+                    {/* Summer Sale Banner */}
+                    <div className="bg-blue-600 rounded-lg overflow-hidden mb-12">
+                        <div className="flex flex-col md:flex-row items-center justify-between p-6 md:p-10">
+                            <div className="text-white mb-6 md:mb-0">
+                                <h2 className="text-3xl md:text-4xl font-bold mb-3">Summer Sale is On!</h2>
+                                <p className="text-lg md:text-xl mb-4">Get up to 50% off on selected items. Limited time offer.</p>
+                                <Link
+                                    to="/shop?sale=true"
+                                    className="inline-block bg-white text-blue-600 py-2 px-6 rounded-md font-medium hover:bg-gray-100 transition"
+                                >
+                                    Shop the Sale
+                                </Link>
+                            </div>
+                            <div>
+                                <img
+                                    src="/images/summer-sale.png"
+                                    alt="Summer Sale"
+                                    className="max-h-40"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

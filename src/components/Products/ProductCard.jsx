@@ -7,16 +7,24 @@ import { fetchProductImage } from '../../api/imageService';
 
 const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
-    const [productImage, setProductImage] = useState(null);
+    const [productImage, setProductImage] = useState(product.imageUrl || null);
     const [isImageLoading, setIsImageLoading] = useState(true);
     const [showImageModal, setShowImageModal] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    const [imageLoadError, setImageLoadError] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
         setIsImageLoading(true);
 
-        // Fetch product image when component mounts using the enhanced image service
+        // First try to use existing imageUrl from the product
+        if (product.imageUrl && !imageLoadError) {
+            setProductImage(product.imageUrl);
+            setIsImageLoading(false);
+            return;
+        }
+
+        // If no imageUrl or previous load failed, try to fetch product image
         fetchProductImage(product.name, product.category)
             .then(imageUrl => {
                 if (isMounted) {
@@ -36,7 +44,7 @@ const ProductCard = ({ product }) => {
         return () => {
             isMounted = false; // Cleanup to prevent setting state on unmounted component
         };
-    }, [product]);
+    }, [product, imageLoadError]);
 
     const handleAddToCart = (e) => {
         e.preventDefault();
@@ -50,14 +58,28 @@ const ProductCard = ({ product }) => {
         setShowImageModal(true);
     };
 
+    const handleImageError = () => {
+        setImageLoadError(true);
+        setProductImage(`https://placehold.co/300x300/e2e8f0/1e293b?text=${encodeURIComponent(product.name)}`);
+    };
+
     // Generate image views for the product
     const getProductImages = () => {
-        const mainImage = productImage || `https://placehold.co/600x600/e2e8f0/1e293b?text=${product.name}`;
+        // Start with the main product image
+        const mainImage = productImage || `https://placehold.co/600x600/e2e8f0/1e293b?text=${encodeURIComponent(product.name)}`;
+
+        // Check if this product should display the summer sale banner
+        const isSaleItem = product.onSale || product.price < product.originalPrice;
+
+        // Create consistent alternative views
         return [
             mainImage,
-            `https://placehold.co/600x600/f1f5f9/334155?text=${product.name} View 2`,
-            `https://placehold.co/600x600/f8fafc/1e293b?text=${product.name} View 3`,
-            `https://placehold.co/600x600/e0f2fe/0c4a6e?text=${product.name} View 4`
+            isSaleItem ?
+                // Summer sale banner for products on sale
+                "https://via.placeholder.com/600x600/1e6bd4/ffffff?text=Summer+Sale+is+On!%0AGet+up+to+50%+off+on+selected+items.%0ALimited+time+offer." :
+                `https://placehold.co/600x600/f1f5f9/334155?text=${encodeURIComponent(product.name)} View 2`,
+            `https://placehold.co/600x600/f8fafc/1e293b?text=${encodeURIComponent(product.name)} View 3`,
+            `https://placehold.co/600x600/e0f2fe/0c4a6e?text=${encodeURIComponent(product.name)} View 4`
         ];
     };
 
@@ -124,10 +146,7 @@ const ProductCard = ({ product }) => {
                                 src={productImage}
                                 alt={product.name}
                                 className="w-full h-48 object-cover hover:opacity-90 transition-opacity duration-300"
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = `https://placehold.co/300x300/e2e8f0/1e293b?text=${encodeURIComponent(product.name)}`;
-                                }}
+                                onError={handleImageError}
                             />
                         )}
 
@@ -216,6 +235,7 @@ const ProductCard = ({ product }) => {
                                         src={getProductImages()[selectedImageIndex]}
                                         alt={`${product.name} - View ${selectedImageIndex + 1}`}
                                         className="w-full h-72 object-contain mx-auto"
+                                        onError={handleImageError}
                                     />
                                 </div>
 
@@ -235,6 +255,7 @@ const ProductCard = ({ product }) => {
                                                 src={image}
                                                 alt={`${product.name} view ${index + 1}`}
                                                 className="w-full h-16 object-cover hover:opacity-80 transition-opacity duration-200"
+                                                onError={handleImageError}
                                             />
                                         </div>
                                     ))}
