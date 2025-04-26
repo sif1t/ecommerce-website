@@ -28,18 +28,11 @@ const productImageMapping = {
     'gaming console': 'https://images.unsplash.com/photo-1486572788966-cfd3df1f5b42?w=300&h=300&fit=crop',
     'keyboard': 'https://images.unsplash.com/photo-1561112078-7d24e04c3407?w=300&h=300&fit=crop',
     'mouse': 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=300&h=300&fit=crop',
-    'monitor': 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=300&h=300&fit=crop',
-    'backpack': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop',
-    'wallet': 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=300&h=300&fit=crop',
-    'sunglasses': 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&h=300&fit=crop',
-    'indoor plant': 'https://images.unsplash.com/photo-1463320726281-696a485928c7?w=300&h=300&fit=crop',
-    'wireless earbuds': 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=300&h=300&fit=crop',
-    'food processor': 'https://images.unsplash.com/photo-1626254767557-577a256b76db?w=300&h=300&fit=crop',
-    'resistance bands': 'https://images.unsplash.com/photo-1598971639058-b7fb7d9b0608?w=300&h=300&fit=crop',
-    'throw blanket': 'https://images.unsplash.com/photo-1616627051826-a1eef77a79f4?w=300&h=300&fit=crop',
-    'portable charger': 'https://images.unsplash.com/photo-1600490722773-35753aea6332?w=300&h=300&fit=crop',
-    'storage containers': 'https://images.unsplash.com/photo-1520104018529-c7c76bce860a?w=300&h=300&fit=crop',
-    'leather belt': 'https://images.unsplash.com/photo-1553591589-32b1bc2a7c21?w=300&h=300&fit=crop',
+
+    // Customer testimonial profile images
+    'testimonial-sarah': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+    'testimonial-michael': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+    'testimonial-emily': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
 };
 
 // Category to generic image mapping as fallback

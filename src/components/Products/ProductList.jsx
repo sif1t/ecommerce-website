@@ -2,15 +2,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { fetchProducts, searchProducts } from '../../api';
+import { fetchProducts, searchProducts, fetchMoreProducts } from '../../api';
 import ProductCard from './ProductCard';
-import { FaSearch, FaSort, FaFilter, FaChevronLeft, FaChevronRight, FaStar, FaTags } from 'react-icons/fa';
+import { FaSearch, FaSort, FaFilter, FaChevronLeft, FaChevronRight, FaStar, FaTags, FaSpinner } from 'react-icons/fa';
 import { preloadProductImages } from '../../api/imageService';
 
 const ProductList = ({ category }) => {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOption, setSortOption] = useState('');
@@ -19,17 +20,25 @@ const ProductList = ({ category }) => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
     const [onSaleProducts, setOnSaleProducts] = useState([]);
     const [productsByCategory, setProductsByCategory] = useState({});
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const [pageSize] = useState(16);
 
     const carouselRef = useRef(null);
+    const loadMoreRef = useRef(null);
 
     // Fetch products
     useEffect(() => {
         const getProducts = async () => {
             try {
                 setLoading(true);
+                setPage(0);
                 const data = await fetchProducts(category);
                 setProducts(data);
                 setFilteredProducts(data);
+
+                // Check if there might be more products
+                setHasMore(data.length >= pageSize);
 
                 // Extract featured products (highest rated)
                 const featured = [...data]
@@ -64,7 +73,30 @@ const ProductList = ({ category }) => {
         };
 
         getProducts();
-    }, [category]);
+    }, [category, pageSize]);
+
+    // Setup intersection observer for infinite loading
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                // If the "load more" element is visible and we aren't already loading
+                if (entries[0].isIntersecting && !loading && !loadingMore && hasMore) {
+                    handleLoadMore();
+                }
+            },
+            { threshold: 0.5 }
+        );
+
+        if (loadMoreRef.current) {
+            observer.observe(loadMoreRef.current);
+        }
+
+        return () => {
+            if (loadMoreRef.current) {
+                observer.unobserve(loadMoreRef.current);
+            }
+        };
+    }, [loading, loadingMore, hasMore, products]);
 
     // Filter and sort products when any filter changes
     useEffect(() => {
@@ -102,9 +134,13 @@ const ProductList = ({ category }) => {
 
         try {
             setLoading(true);
+            setPage(0);
             const results = await searchProducts(searchTerm);
             setProducts(results);
             setFilteredProducts(results);
+
+            // Reset hasMore state based on results
+            setHasMore(results.length >= pageSize);
 
             // Preload images for search results
             preloadProductImages(results).catch(err =>
@@ -114,6 +150,36 @@ const ProductList = ({ category }) => {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Handle loading more products
+    const handleLoadMore = async () => {
+        // Don't load more if already loading or no more products
+        if (loading || loadingMore || !hasMore) return;
+
+        try {
+            setLoadingMore(true);
+            const nextPage = page + 1;
+            const offset = nextPage * pageSize;
+
+            const newProducts = await fetchMoreProducts(offset, pageSize, category);
+
+            if (newProducts.length === 0) {
+                setHasMore(false);
+            } else {
+                setPage(nextPage);
+                setProducts(prevProducts => [...prevProducts, ...newProducts]);
+
+                // Preload new product images in the background
+                preloadProductImages(newProducts).catch(err =>
+                    console.error('Error preloading new product images:', err)
+                );
+            }
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoadingMore(false);
         }
     };
 
@@ -335,20 +401,89 @@ const ProductList = ({ category }) => {
 
             {/* Regular product grid (shown when searching or filtering) */}
             {searchTerm || category ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {loading ? renderSkeletons() : (
-                        filteredProducts.length > 0 ? (
-                            filteredProducts.map(product => (
-                                <ProductCard key={product.id} product={product} />
-                            ))
-                        ) : (
-                            <div className="col-span-full text-center py-8">
-                                <p className="text-gray-500 text-lg">No products found. Try adjusting your filters.</p>
-                            </div>
-                        )
+                <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {loading ? renderSkeletons() : (
+                            filteredProducts.length > 0 ? (
+                                filteredProducts.map(product => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))
+                            ) : (
+                                <div className="col-span-full text-center py-8">
+                                    <p className="text-gray-500 text-lg">No products found. Try adjusting your filters.</p>
+                                </div>
+                            )
+                        )}
+                    </div>
+
+                    {/* "Load More" indicator */}
+                    {filteredProducts.length > 0 && hasMore && (
+                        <div
+                            ref={loadMoreRef}
+                            className="text-center py-8"
+                        >
+                            {loadingMore ? (
+                                <div className="flex items-center justify-center">
+                                    <FaSpinner className="animate-spin text-blue-600 mr-2" />
+                                    <span className="text-blue-600">Loading more products...</span>
+                                </div>
+                            ) : (
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleLoadMore}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                                >
+                                    Load More Products
+                                </motion.button>
+                            )}
+                        </div>
+                    )}
+                </>
+            ) : (
+                // Show "Explore All Products" section
+                <div className="mt-16 text-center">
+                    <SectionTitle
+                        title="Explore All Products"
+                        icon={<FaSearch className="text-blue-500 text-xl" />}
+                        color="blue"
+                    />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+                        {loading ? renderSkeletons(8) : (
+                            products.length > 0 && products
+                                .slice(0, Math.min(products.length, 16)) // Show first 16 products initially
+                                .map(product => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))
+                        )}
+                    </div>
+
+                    {/* "Load More" indicator */}
+                    {products.length > 0 && hasMore && (
+                        <div
+                            ref={loadMoreRef}
+                            className="text-center py-8 mt-4"
+                        >
+                            {loadingMore ? (
+                                <div className="flex items-center justify-center">
+                                    <FaSpinner className="animate-spin text-blue-600 mr-2" />
+                                    <span className="text-blue-600">Loading more products...</span>
+                                </div>
+                            ) : (
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleLoadMore}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                                >
+                                    Load More Products
+                                </motion.button>
+                            )}
+                        </div>
                     )}
                 </div>
-            ) : null}
+            )}
         </div>
     );
 };

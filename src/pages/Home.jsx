@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { fetchProducts } from '../api';
 import ProductCard from '../components/Products/ProductCard';
 import CategorySection from '../components/Layout/CategorySection';
+import TestimonialsSection from '../components/Layout/TestimonialsSection';
 import { FaArrowRight, FaShippingFast, FaCreditCard, FaHeadset, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const Home = () => {
@@ -255,23 +256,36 @@ const Home = () => {
                     </div>
 
                     {/* Summer Sale Banner */}
-                    <div className="bg-blue-600 rounded-lg overflow-hidden mb-12">
-                        <div className="flex flex-col md:flex-row items-center justify-between p-6 md:p-10">
+                    <div className="rounded-lg overflow-hidden mb-12 bg-gradient-to-r from-blue-700 to-blue-500 relative">
+                        {/* Background image with overlay */}
+                        <div className="absolute inset-0 z-0">
+                            <img
+                                src="https://images.unsplash.com/photo-1473186505569-9c61870c11f9?q=80&w=1470&auto=format&fit=crop"
+                                alt="Summer background"
+                                className="w-full h-full object-cover mix-blend-overlay opacity-40"
+                            />
+                        </div>
+
+                        {/* Summer sale content */}
+                        <div className="flex flex-col md:flex-row items-center justify-between p-6 md:p-10 relative z-10">
                             <div className="text-white mb-6 md:mb-0">
                                 <h2 className="text-3xl md:text-4xl font-bold mb-3">Summer Sale is On!</h2>
                                 <p className="text-lg md:text-xl mb-4">Get up to 50% off on selected items. Limited time offer.</p>
                                 <Link
                                     to="/shop?sale=true"
-                                    className="inline-block bg-white text-blue-600 py-2 px-6 rounded-md font-medium hover:bg-gray-100 transition"
+                                    className="inline-block bg-white text-blue-600 py-2 px-6 rounded-md font-medium hover:bg-gray-100 transition-colors shadow-md hover:shadow-lg"
                                 >
                                     Shop the Sale
                                 </Link>
                             </div>
-                            <div>
+                            <div className="relative">
+                                <div className="absolute -top-10 -left-10 w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center rotate-12 shadow-lg">
+                                    <span className="font-bold text-blue-900 text-center">UP TO 50% OFF</span>
+                                </div>
                                 <img
-                                    src="/images/summer-sale.png"
+                                    src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=500&auto=format&fit=crop"
                                     alt="Summer Sale"
-                                    className="max-h-40"
+                                    className="max-h-40 rounded-lg shadow-lg object-cover"
                                 />
                             </div>
                         </div>
@@ -327,106 +341,7 @@ const Home = () => {
             </div>
 
             {/* Testimonials */}
-            <div className="bg-gray-50 py-16">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-2xl md:text-3xl font-bold mb-12 text-center">What Our Customers Say</h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            variants={fadeInUp}
-                            className="bg-white p-6 rounded-lg shadow-md"
-                        >
-                            <div className="flex items-center mb-4">
-                                <div className="mr-4">
-                                    <img
-                                        src="https://via.placeholder.com/64"
-                                        alt="Customer"
-                                        className="w-12 h-12 rounded-full object-cover"
-                                    />
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold">Sarah Johnson</h4>
-                                    <div className="flex text-yellow-400">
-                                        {[...Array(5)].map((_, i) => (
-                                            <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                            </svg>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <p className="text-gray-600">
-                                "I've been shopping here for years and the quality of products never disappoints. Fast shipping and great customer service!"
-                            </p>
-                        </motion.div>
-
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            variants={fadeInUp}
-                            className="bg-white p-6 rounded-lg shadow-md"
-                        >
-                            <div className="flex items-center mb-4">
-                                <div className="mr-4">
-                                    <img
-                                        src="https://via.placeholder.com/64"
-                                        alt="Customer"
-                                        className="w-12 h-12 rounded-full object-cover"
-                                    />
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold">Michael Wilson</h4>
-                                    <div className="flex text-yellow-400">
-                                        {[...Array(5)].map((_, i) => (
-                                            <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                            </svg>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <p className="text-gray-600">
-                                "The checkout process was seamless and my order arrived earlier than expected. Definitely my go-to online store now!"
-                            </p>
-                        </motion.div>
-
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            variants={fadeInUp}
-                            className="bg-white p-6 rounded-lg shadow-md"
-                        >
-                            <div className="flex items-center mb-4">
-                                <div className="mr-4">
-                                    <img
-                                        src="https://via.placeholder.com/64"
-                                        alt="Customer"
-                                        className="w-12 h-12 rounded-full object-cover"
-                                    />
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold">Emily Rodriguez</h4>
-                                    <div className="flex text-yellow-400">
-                                        {[...Array(5)].map((_, i) => (
-                                            <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                            </svg>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <p className="text-gray-600">
-                                "Great selection of products at competitive prices. The customer support team was extremely helpful when I had questions!"
-                            </p>
-                        </motion.div>
-                    </div>
-                </div>
-            </div>
+            <TestimonialsSection />
 
             {/* Newsletter Subscription */}
             <div className="py-16">

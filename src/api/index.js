@@ -407,6 +407,91 @@ const localData = {
     ]
 };
 
+// Generate unique ID for new products
+const getNextProductId = () => {
+    const maxId = localData.products.reduce((max, product) => Math.max(max, product.id), 0);
+    return maxId + 1;
+};
+
+// Arrays for generating random products
+const productTypes = [
+    { name: "Premium Headphones", category: "electronics", basePrice: 149.99, desc: "High-end wireless headphones with superior sound quality" },
+    { name: "Ultra-Slim Laptop", category: "electronics", basePrice: 899.99, desc: "Powerful and lightweight laptop with all-day battery life" },
+    { name: "Designer Watch", category: "accessories", basePrice: 199.99, desc: "Elegant timepiece with premium materials and water resistance" },
+    { name: "Fitness Smartband", category: "electronics", basePrice: 79.99, desc: "Activity tracker with heart rate monitoring and sleep analysis" },
+    { name: "Organic Cotton Sweater", category: "clothing", basePrice: 59.99, desc: "Soft, sustainable sweater perfect for everyday wear" },
+    { name: "Stainless Steel Cookware Set", category: "kitchen", basePrice: 149.99, desc: "Professional-grade cooking set with non-stick coating" },
+    { name: "HD Smart TV", category: "electronics", basePrice: 549.99, desc: "Crystal clear display with integrated streaming services" },
+    { name: "Bluetooth Earbuds", category: "electronics", basePrice: 89.99, desc: "True wireless earbuds with active noise cancellation" },
+    { name: "Leather Crossbody Bag", category: "accessories", basePrice: 129.99, desc: "Stylish and functional bag with multiple compartments" },
+    { name: "Adjustable Dumbbell Set", category: "fitness", basePrice: 179.99, desc: "Space-saving weights for home workouts" },
+    { name: "Ceramic Dinner Set", category: "home", basePrice: 69.99, desc: "Modern dinnerware set for everyday use or special occasions" },
+    { name: "Air Purifier", category: "home", basePrice: 129.99, desc: "HEPA filter system to remove allergens and pollutants" },
+    { name: "Ergonomic Desk Chair", category: "furniture", basePrice: 219.99, desc: "Comfortable office chair with adjustable features" },
+    { name: "Premium Coffee Beans", category: "grocery", basePrice: 19.99, desc: "Specialty roasted coffee from sustainable sources" },
+    { name: "Digital Drawing Tablet", category: "electronics", basePrice: 149.99, desc: "Precision tablet for digital artists and designers" },
+    { name: "Wireless Charging Pad", category: "electronics", basePrice: 39.99, desc: "Fast-charging compatible with multiple devices" },
+    { name: "Indoor Plant Collection", category: "home", basePrice: 49.99, desc: "Set of low-maintenance plants to purify your space" },
+    { name: "Premium Yoga Mat", category: "fitness", basePrice: 59.99, desc: "Extra thick, eco-friendly exercise mat with alignment markings" },
+    { name: "Aromatherapy Diffuser", category: "home", basePrice: 44.99, desc: "Essential oil diffuser with color-changing LED lights" },
+    { name: "Smart Home Speaker", category: "electronics", basePrice: 129.99, desc: "Voice-controlled speaker with premium sound quality" }
+];
+
+const variants = ["Pro", "Elite", "Plus", "Max", "Ultra", "Premium", "Deluxe", "Limited Edition", "Classic", "Signature"];
+const colors = ["Black", "White", "Silver", "Gold", "Rose Gold", "Navy", "Red", "Green", "Blue", "Purple"];
+const sizes = ["Small", "Medium", "Large", "X-Large", "Compact", "Standard", "Deluxe"];
+
+// Generate a random product
+export const generateRandomProduct = () => {
+    const productType = productTypes[Math.floor(Math.random() * productTypes.length)];
+    const variant = Math.random() > 0.5 ? variants[Math.floor(Math.random() * variants.length)] + " " : "";
+    const color = Math.random() > 0.6 ? colors[Math.floor(Math.random() * colors.length)] + " " : "";
+    const size = Math.random() > 0.7 ? sizes[Math.floor(Math.random() * sizes.length)] + " " : "";
+
+    // Randomize price within ±20% of base price
+    const priceVariation = (Math.random() * 0.4) - 0.2; // -20% to +20%
+    const price = Math.round((productType.basePrice * (1 + priceVariation)) * 100) / 100;
+
+    // About 30% of products will be on sale
+    const onSale = Math.random() < 0.3;
+    const originalPrice = onSale ? Math.round((price * 1.2) * 100) / 100 : null;
+
+    // Random stock between 1-30
+    const stock = Math.floor(Math.random() * 30) + 1;
+
+    // Random rating between 3.5 and 5.0
+    const rating = Math.round((3.5 + (Math.random() * 1.5)) * 10) / 10;
+
+    return {
+        id: getNextProductId(),
+        name: `${color}${size}${variant}${productType.name}`,
+        price,
+        description: productType.desc,
+        imageUrl: null, // Will be fetched by the imageService
+        category: productType.category,
+        rating,
+        stock,
+        originalPrice: onSale ? originalPrice : undefined,
+        onSale
+    };
+};
+
+// Generate multiple random products at once
+export const generateRandomProducts = (count = 10) => {
+    const newProducts = [];
+    for (let i = 0; i < count; i++) {
+        newProducts.push(generateRandomProduct());
+    }
+    return newProducts;
+};
+
+// Add generated products to local data
+export const addGeneratedProductsToLocalData = (count = 10) => {
+    const newProducts = generateRandomProducts(count);
+    localData.products = [...localData.products, ...newProducts];
+    return newProducts;
+};
+
 // Product API functions
 export const fetchProducts = async (category = null) => {
     try {
@@ -424,6 +509,41 @@ export const fetchProducts = async (category = null) => {
         }
 
         return localData.products;
+    }
+};
+
+// Fetch more products (for pagination or "load more" feature)
+export const fetchMoreProducts = async (offset = 0, limit = 10, category = null) => {
+    try {
+        const response = await api.get('/products', {
+            params: {
+                _start: offset,
+                _limit: limit,
+                ...(category && { category })
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching more products:', error);
+
+        // Generate new products if we've exhausted the local data
+        if (offset >= localData.products.length) {
+            const newProducts = addGeneratedProductsToLocalData(limit);
+
+            if (category) {
+                return newProducts.filter(p => p.category === category);
+            }
+
+            return newProducts;
+        }
+
+        // Otherwise return a slice of existing local data
+        let products = localData.products;
+        if (category) {
+            products = products.filter(p => p.category === category);
+        }
+
+        return products.slice(offset, offset + limit);
     }
 };
 
