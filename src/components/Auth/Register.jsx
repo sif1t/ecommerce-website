@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 
@@ -16,9 +16,10 @@ const Register = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
 
-    const { register, signInWithGoogle, signInWithFacebook } = useAuth();
+    const { register, signInWithGoogle } = useAuth();
     const navigate = useNavigate();
 
     const { firstName, lastName, email, password, confirmPassword } = formData;
@@ -104,7 +105,7 @@ const Register = () => {
     };
 
     const handleGoogleRegister = async () => {
-        setIsLoading(true);
+        setGoogleLoading(true);
         try {
             const success = await signInWithGoogle();
             if (success) {
@@ -116,24 +117,7 @@ const Register = () => {
                 general: 'Google sign-up failed. Please try again later.'
             });
         } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleFacebookRegister = async () => {
-        setIsLoading(true);
-        try {
-            const success = await signInWithFacebook();
-            if (success) {
-                navigate('/');
-            }
-        } catch (err) {
-            console.error('Facebook registration error:', err);
-            setErrors({
-                general: 'Facebook sign-up failed. Please try again later.'
-            });
-        } finally {
-            setIsLoading(false);
+            setGoogleLoading(false);
         }
     };
 
@@ -308,9 +292,8 @@ const Register = () => {
                             <div>
                                 <button
                                     type="submit"
-                                    disabled={isLoading}
-                                    className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isLoading ? "opacity-70 cursor-not-allowed" : ""
-                                        }`}
+                                    disabled={isLoading || googleLoading}
+                                    className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
                                 >
                                     {isLoading ? "Creating Account..." : "Create Account"}
                                 </button>
@@ -327,24 +310,15 @@ const Register = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-6 grid grid-cols-2 gap-3">
+                            <div className="mt-6 grid grid-cols-1 gap-3">
                                 <button
                                     type="button"
                                     onClick={handleGoogleRegister}
-                                    disabled={isLoading}
+                                    disabled={isLoading || googleLoading}
                                     className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
                                     <FaGoogle className="mr-2 text-red-600" />
-                                    Google
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleFacebookRegister}
-                                    disabled={isLoading}
-                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
-                                >
-                                    <FaFacebook className="mr-2 text-blue-600" />
-                                    Facebook
+                                    {googleLoading ? "Signing up..." : "Google"}
                                 </button>
                             </div>
                         </div>

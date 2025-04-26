@@ -6,10 +6,12 @@ import {
     signOut,
     signInWithPopup,
     GoogleAuthProvider,
-    FacebookAuthProvider,
     onAuthStateChanged
 } from 'firebase/auth';
-import { auth } from '../firebase/firebase';
+import {
+    auth,
+    storeUserData
+} from '../firebase/firebase';
 
 export const AuthContext = createContext();
 
@@ -43,6 +45,9 @@ export const AuthProvider = ({ children }) => {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const loggedInUser = userCredential.user;
 
+            // Store user data
+            await storeUserData(loggedInUser);
+
             toast.success(`Welcome back, ${loggedInUser.displayName || 'User'}!`);
             return true;
         } catch (err) {
@@ -67,6 +72,12 @@ export const AuthProvider = ({ children }) => {
             // You can update the user profile here if needed
             // await updateProfile(userCredential.user, { displayName: name });
 
+            // Store user data with additional fields
+            await storeUserData({
+                ...userCredential.user,
+                displayName: name
+            });
+
             toast.success('Registration successful!');
             return true;
         } catch (err) {
@@ -85,27 +96,12 @@ export const AuthProvider = ({ children }) => {
             setError(null);
             setLoading(true);
             const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-            toast.success('Successfully signed in with Google!');
-            return true;
-        } catch (err) {
-            const errorMessage = getFirebaseAuthErrorMessage(err);
-            setError(errorMessage);
-            toast.error(errorMessage);
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    };
+            const result = await signInWithPopup(auth, provider);
 
-    // Facebook Sign In
-    const signInWithFacebook = async () => {
-        try {
-            setError(null);
-            setLoading(true);
-            const provider = new FacebookAuthProvider();
-            await signInWithPopup(auth, provider);
-            toast.success('Successfully signed in with Facebook!');
+            // Store user data
+            await storeUserData(result.user);
+
+            toast.success('Successfully signed in with Google!');
             return true;
         } catch (err) {
             const errorMessage = getFirebaseAuthErrorMessage(err);
@@ -130,7 +126,7 @@ export const AuthProvider = ({ children }) => {
 
     // Helper function to handle Firebase auth errors
     const getFirebaseAuthErrorMessage = (error) => {
-        switch (error.code) {
+        switch (error.code || error.errorCode) {
             case 'auth/invalid-email':
                 return 'Invalid email address format.';
             case 'auth/user-disabled':
@@ -146,11 +142,21 @@ export const AuthProvider = ({ children }) => {
             case 'auth/popup-closed-by-user':
                 return 'Authentication popup was closed before completion.';
             case 'auth/account-exists-with-different-credential':
-                return 'An account already exists with the same email address but different sign-in credentials.';
+                return 'An account already exists with the same email address but different sign-in credentials. Try signing in with a different method.';
             case 'auth/cancelled-popup-request':
                 return 'The authentication request was cancelled.';
+            case 'auth/operation-not-allowed':
+                return 'This login method is not enabled. Please contact support.';
+            case 'auth/auth-domain-config-required':
+                return 'Authentication domain configuration is required. Please contact support.';
+            case 'auth/app-deleted':
+                return 'Authentication service is unavailable. Please try again later.';
+            case 'auth/invalid-api-key':
+                return 'Invalid API key. Please contact support.';
+            case 'auth/network-request-failed':
+                return 'Network error occurred. Please check your internet connection.';
             default:
-                return error.message || 'An unknown error occurred.';
+                return error.message || error.errorMessage || 'An unknown error occurred.';
         }
     };
 
@@ -163,7 +169,6 @@ export const AuthProvider = ({ children }) => {
             login,
             register,
             signInWithGoogle,
-            signInWithFacebook,
             logout
         }}>
             {children}

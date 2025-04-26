@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaGoogle, FaFacebook, FaEye, FaEyeSlash, FaLock, FaEnvelope } from 'react-icons/fa';
+import { FaGoogle, FaEye, FaEyeSlash, FaLock, FaEnvelope } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 
@@ -10,9 +10,10 @@ const Login = () => {
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const { login, signInWithGoogle, signInWithFacebook } = useAuth();
+    const { login, signInWithGoogle } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -55,7 +56,7 @@ const Login = () => {
     };
 
     const handleGoogleLogin = async () => {
-        setIsLoading(true);
+        setGoogleLoading(true);
         setError('');
 
         try {
@@ -66,23 +67,7 @@ const Login = () => {
         } catch (err) {
             setError('Google sign-in failed. Please try again.');
         } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleFacebookLogin = async () => {
-        setIsLoading(true);
-        setError('');
-
-        try {
-            const success = await signInWithFacebook();
-            if (success) {
-                navigate(from, { replace: true });
-            }
-        } catch (err) {
-            setError('Facebook sign-in failed. Please try again.');
-        } finally {
-            setIsLoading(false);
+            setGoogleLoading(false);
         }
     };
 
@@ -198,24 +183,15 @@ const Login = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-6 grid grid-cols-2 gap-3">
+                            <div className="mt-6 grid grid-cols-1 gap-3">
                                 <button
                                     type="button"
                                     onClick={handleGoogleLogin}
-                                    disabled={isLoading}
+                                    disabled={googleLoading || isLoading}
                                     className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
                                 >
                                     <FaGoogle className="mr-2 text-red-600" />
-                                    Google
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleFacebookLogin}
-                                    disabled={isLoading}
-                                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
-                                >
-                                    <FaFacebook className="mr-2 text-blue-600" />
-                                    Facebook
+                                    {googleLoading ? "Signing in..." : "Google"}
                                 </button>
                             </div>
                         </div>
