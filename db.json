@@ -5,7 +5,7 @@
       "name": "Smartphone X",
       "price": 699.99,
       "description": "Latest generation smartphone with advanced camera system",
-          "image": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=400&fit=crop&auto=format",
+      "image": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=400&fit=crop&auto=format",
       "imageUrl": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=400&fit=crop&auto=format",
       "category": "electronics"
     },
@@ -35,6 +35,168 @@
       "image": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&h=400&fit=crop&auto=format",
       "imageUrl": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&h=400&fit=crop&auto=format",
       "category": "electronics"
+    },
+    {
+      "id": 5,
+      "name": "4K Ultra HD TV",
+      "price": 899.99,
+      "description": "Immersive viewing experience with vibrant colors and crystal clear display",
+      "image": "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&h=400&fit=crop&auto=format",
+      "category": "electronics"
+    },
+    {
+      "id": 6,
+      "name": "Bluetooth Speaker",
+      "price": 79.99,
+      "description": "Portable speaker with rich sound and long battery life",
+      "image": "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=600&h=400&fit=crop&auto=format",
+      "category": "electronics"
+    },
+    {
+      "id": 7,
+      "name": "Gaming Laptop",
+      "price": 1299.99,
+      "description": "High-performance laptop designed for gaming enthusiasts",
+      "image": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=600&h=400&fit=crop&auto=format",
+      "category": "electronics"
+    },
+    {
+      "id": 8,
+      "name": "Wireless Mouse",
+      "price": 29.99,
+      "description": "Ergonomic wireless mouse with precision tracking",
+      "image": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&h=400&fit=crop&auto=format",
+      "category": "electronics"
+    },
+    {
+      "id": 9,
+      "name": "Tablet Pro",
+      "price": 499.99,
+      "description": "Versatile tablet for work and entertainment with stunning display",
+      "image": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&h=400&fit=crop&auto=format",
+      "category": "electronics"
+    },
+    {
+      "id": 10,
+      "name": "Smart Home Hub",
+      "price": 129.99,
+      "description": "Central control for all your smart home devices",
+      "image": "https://images.unsplash.com/photo-1558002038-64342ba28948?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1558002038-64342ba28948?w=600&h=400&fit=crop&auto=format",
+      "category": "electronics"
+    },
+    {
+      "id": 11,
+      "name": "Digital Camera",
+      "price": 349.99,
+      "description": "Capture memories with this high-resolution digital camera",
+      "image": "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&h=400&fit=crop&auto=format",
+      "category": "electronics"
+    },
+    {
+      "id": 12,
+      "name": "Wireless Earbuds",
+      "price": 89.99,
+      "description": "Lightweight earbuds with superior sound quality",
+      "image": "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1606741965326-cb990ae01bb2?w=600&h=400&fit=crop&auto=format",
+      "category": "electronics"
+    },
+    {
+      "id": 13,
+      "name": "Denim Jeans",
+      "price": 49.99,
+      "description": "Classic denim jeans with comfortable fit",
+      "image": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 14,
+      "name": "Winter Jacket",
+      "price": 129.99,
+      "description": "Warm and stylish winter jacket for cold weather",
+      "image": "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 15,
+      "name": "Running Shoes",
+      "price": 89.99,
+      "description": "Lightweight and comfortable shoes for sports and running",
+      "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 16,
+      "name": "Casual Dress",
+      "price": 59.99,
+      "description": "Elegant casual dress suitable for various occasions",
+      "image": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 17,
+      "name": "Leather Wallet",
+      "price": 39.99,
+      "description": "Premium leather wallet with multiple compartments",
+      "image": "https://images.unsplash.com/photo-1559694004-c5cd2c7b7028?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1559694004-c5cd2c7b7028?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 18,
+      "name": "Formal Shirt",
+      "price": 45.99,
+      "description": "Elegant formal shirt for office and special events",
+      "image": "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 19,
+      "name": "Summer Hat",
+      "price": 24.99,
+      "description": "Stylish hat for sun protection during summer",
+      "image": "https://images.unsplash.com/photo-1572307480813-ceb0e59d8325?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1572307480813-ceb0e59d8325?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 20,
+      "name": "Designer Sunglasses",
+      "price": 129.99,
+      "description": "UV protection sunglasses with stylish design",
+      "image": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 21,
+      "name": "Sports Leggings",
+      "price": 34.99,
+      "description": "Comfortable leggings for workout and casual wear",
+      "image": "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
+    },
+    {
+      "id": 22,
+      "name": "Backpack",
+      "price": 49.99,
+      "description": "Durable backpack for travel and everyday use",
+      "image": "https://images.unsplash.com/photo-1581605405669-fcdf81165afa?w=600&h=400&fit=crop&auto=format",
+      "imageUrl": "https://images.unsplash.com/photo-1581605405669-fcdf81165afa?w=600&h=400&fit=crop&auto=format",
+      "category": "clothing"
     }
   ],
   "cart": [],
