@@ -20,6 +20,36 @@ const CategorySection = () => {
             description: 'Furniture and decor',
             image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=300&h=300&fit=crop',
             slug: 'home'
+        },
+        {
+            name: 'Beauty',
+            description: 'Skincare and cosmetics',
+            image: 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=300&h=300&fit=crop',
+            slug: 'beauty'
+        },
+        {
+            name: 'Sports',
+            description: 'Athletic gear and equipment',
+            image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=300&h=300&fit=crop',
+            slug: 'sports'
+        },
+        {
+            name: 'Books',
+            description: 'Fiction and non-fiction titles',
+            image: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=300&h=300&fit=crop',
+            slug: 'books'
+        },
+        {
+            name: 'Toys',
+            description: 'Games and entertainment',
+            image: 'https://images.unsplash.com/photo-1599751449628-8da1da7433a5?w=300&h=300&fit=crop',
+            slug: 'toys'
+        },
+        {
+            name: 'Jewelry',
+            description: 'Watches and accessories',
+            image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&h=300&fit=crop',
+            slug: 'jewelry'
         }
     ];
 
@@ -28,11 +58,11 @@ const CategorySection = () => {
             <div className="container mx-auto px-4">
                 <h2 className="text-3xl font-bold text-center mb-12">Shop by Category</h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {categories.map((category) => (
                         <div
                             key={category.slug}
-                            className="relative overflow-hidden rounded-lg group shadow-md"
+                            className="relative overflow-hidden rounded-lg group shadow-md hover:shadow-xl transition-shadow"
                             style={{
                                 background: `linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)), url(${category.image})`,
                                 backgroundSize: 'cover',

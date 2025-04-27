@@ -395,6 +395,275 @@ const localData = {
             category: "fitness",
             rating: 4.6,
             stock: 4
+        },
+        // Beauty Products
+        {
+            id: 37,
+            name: "Luxury Skincare Set",
+            price: 89.99,
+            description: "Complete skincare routine with cleanser, moisturizer, and serum",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "beauty",
+            rating: 4.7,
+            stock: 12
+        },
+        {
+            id: 38,
+            name: "Professional Hair Dryer",
+            price: 129.99,
+            description: "Salon-quality hair dryer with multiple heat and speed settings",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "beauty",
+            rating: 4.5,
+            stock: 8
+        },
+        {
+            id: 39,
+            name: "Organic Face Mask Collection",
+            price: 24.99,
+            description: "Set of 5 natural ingredient face masks for different skin concerns",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "beauty",
+            rating: 4.3,
+            stock: 20,
+            originalPrice: 34.99,
+            onSale: true
+        },
+        {
+            id: 40,
+            name: "Premium Makeup Brush Set",
+            price: 49.99,
+            description: "12-piece professional quality makeup brush collection with case",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "beauty",
+            rating: 4.6,
+            stock: 15
+        },
+        {
+            id: 41,
+            name: "Natural Perfume",
+            price: 69.99,
+            description: "Long-lasting fragrance with notes of jasmine and sandalwood",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "beauty",
+            rating: 4.4,
+            stock: 10
+        },
+
+        // Sports Products
+        {
+            id: 42,
+            name: "Basketball",
+            price: 29.99,
+            description: "Official size and weight basketball for indoor or outdoor play",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "sports",
+            rating: 4.5,
+            stock: 25
+        },
+        {
+            id: 43,
+            name: "Tennis Racket Pro",
+            price: 159.99,
+            description: "Competition-grade tennis racket with optimal power and control",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "sports",
+            rating: 4.8,
+            stock: 6
+        },
+        {
+            id: 44,
+            name: "Hiking Backpack 40L",
+            price: 89.99,
+            description: "Weatherproof backpack with hydration system compatibility",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "sports",
+            rating: 4.6,
+            stock: 14,
+            originalPrice: 119.99,
+            onSale: true
+        },
+        {
+            id: 45,
+            name: "Smart Jump Rope",
+            price: 24.99,
+            description: "Digital jump rope that counts jumps and calories burned",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "sports",
+            rating: 4.2,
+            stock: 30
+        },
+        {
+            id: 46,
+            name: "Compression Running Leggings",
+            price: 44.99,
+            description: "High-performance leggings with moisture-wicking technology",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "sports",
+            rating: 4.4,
+            stock: 18
+        },
+
+        // Books Products
+        {
+            id: 47,
+            name: "The Modern Cookbook",
+            price: 35.99,
+            description: "200+ innovative recipes for contemporary home cooking",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "books",
+            rating: 4.7,
+            stock: 22
+        },
+        {
+            id: 48,
+            name: "Science Fiction Anthology",
+            price: 24.99,
+            description: "Collection of award-winning short stories from top sci-fi authors",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "books",
+            rating: 4.5,
+            stock: 15
+        },
+        {
+            id: 49,
+            name: "Personal Finance Guide",
+            price: 19.99,
+            description: "Practical strategies for saving, investing, and building wealth",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "books",
+            rating: 4.6,
+            stock: 28,
+            originalPrice: 29.99,
+            onSale: true
+        },
+        {
+            id: 50,
+            name: "Historical Biography Collection",
+            price: 45.99,
+            description: "Boxed set of three bestselling historical biographies",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "books",
+            rating: 4.8,
+            stock: 7
+        },
+        {
+            id: 51,
+            name: "Children's Illustrated Atlas",
+            price: 22.99,
+            description: "Educational world atlas with vibrant illustrations for young readers",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "books",
+            rating: 4.4,
+            stock: 19
+        },
+
+        // Toys Products
+        {
+            id: 52,
+            name: "Building Blocks Set",
+            price: 39.99,
+            description: "250-piece creative construction set for ages 4-12",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.7,
+            stock: 24
+        },
+        {
+            id: 53,
+            name: "Remote Control Car",
+            price: 59.99,
+            description: "High-speed RC car with all-terrain capabilities and long battery life",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.5,
+            stock: 16,
+            originalPrice: 79.99,
+            onSale: true
+        },
+        {
+            id: 54,
+            name: "Educational Science Kit",
+            price: 34.99,
+            description: "Hands-on experiments to learn science concepts for ages 8+",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.6,
+            stock: 13
+        },
+        {
+            id: 55,
+            name: "Plush Animal Collection",
+            price: 29.99,
+            description: "Set of 4 soft, huggable animal plushies for all ages",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.4,
+            stock: 30
+        },
+        {
+            id: 56,
+            name: "Strategy Board Game",
+            price: 44.99,
+            description: "Award-winning family board game for 2-6 players",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.8,
+            stock: 9
+        },
+
+        // Jewelry Products
+        {
+            id: 57,
+            name: "Silver Pendant Necklace",
+            price: 79.99,
+            description: "Handcrafted sterling silver pendant on 18-inch chain",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "jewelry",
+            rating: 4.7,
+            stock: 18
+        },
+        {
+            id: 58,
+            name: "Gold Hoop Earrings",
+            price: 149.99,
+            description: "14K gold-plated hoops with hypoallergenic posts",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "jewelry",
+            rating: 4.6,
+            stock: 12,
+            originalPrice: 179.99,
+            onSale: true
+        },
+        {
+            id: 59,
+            name: "Gemstone Ring Set",
+            price: 99.99,
+            description: "Set of 3 stackable rings with different colored gemstones",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "jewelry",
+            rating: 4.5,
+            stock: 10
+        },
+        {
+            id: 60,
+            name: "Men's Stainless Steel Watch",
+            price: 199.99,
+            description: "Modern chronograph watch with genuine leather band",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "jewelry",
+            rating: 4.8,
+            stock: 7
+        },
+        {
+            id: 61,
+            name: "Pearl Bracelet",
+            price: 89.99,
+            description: "Elegant freshwater pearl bracelet with silver clasp",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "jewelry",
+            rating: 4.4,
+            stock: 15
         }
     ],
     users: [

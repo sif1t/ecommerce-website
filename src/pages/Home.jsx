@@ -9,6 +9,7 @@ import { FaArrowRight, FaShippingFast, FaCreditCard, FaHeadset, FaCheck, FaChevr
 
 const Home = () => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
+    const [productsByCategory, setProductsByCategory] = useState({});
     const [loading, setLoading] = useState(true);
 
     // Slider state
@@ -66,21 +67,32 @@ const Home = () => {
         return () => clearInterval(interval);
     }, [nextSlide]);
 
-    // Fetch featured products on component mount
+    // Fetch all products and categorize them
     useEffect(() => {
-        const getFeaturedProducts = async () => {
+        const getAllProducts = async () => {
             try {
-                const products = await fetchProducts();
-                // Get a subset of products for featuring (in a real app, you'd have a featured flag in the API)
-                setFeaturedProducts(products.slice(0, 4));
+                const allProducts = await fetchProducts();
+                // Get a subset of products for featuring
+                setFeaturedProducts(allProducts.slice(0, 4));
+
+                // Filter products for specific categories
+                const categoriesToDisplay = ['beauty', 'sports', 'books', 'toys', 'jewelry'];
+                const categorized = {};
+                categoriesToDisplay.forEach(categorySlug => {
+                    categorized[categorySlug] = allProducts
+                        .filter(p => p.category && p.category.toLowerCase() === categorySlug)
+                        .slice(0, 4); // Take first 4 products for each category section
+                });
+                setProductsByCategory(categorized);
+
             } catch (error) {
-                console.error('Error fetching featured products:', error);
+                console.error('Error fetching products:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        getFeaturedProducts();
+        getAllProducts();
     }, []);
 
     // Animate elements when they come into view
@@ -298,6 +310,27 @@ const Home = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Sections for specific categories */}
+            {Object.entries(productsByCategory).map(([categorySlug, products]) => (
+                products.length > 0 && (
+                    <div key={categorySlug} className="py-16 bg-gray-50">
+                        <div className="container mx-auto px-4">
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-2xl md:text-3xl font-bold capitalize">{categorySlug}</h2>
+                                <Link to={`/shop?category=${categorySlug}`} className="text-blue-600 hover:text-blue-800 flex items-center transition">
+                                    View All <FaArrowRight className="ml-2" />
+                                </Link>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                {products.map(product => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )
+            ))}
 
             {/* Promotional Banner */}
             <div className="py-16 relative overflow-hidden">
