@@ -2,7 +2,10 @@
 import { initializeApp } from 'firebase/app';
 import {
     getAuth,
-    updateProfile
+    updateProfile,
+    PhoneAuthProvider,
+    RecaptchaVerifier,
+    signInWithPhoneNumber
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
@@ -33,6 +36,9 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase services
 const auth = getAuth(app);
+// Configure auth to allow international phone numbers
+auth.settings.appVerificationDisabledForTesting = false; // Set to true only in dev environment for testing
+
 const db = getFirestore(app);
 const storage = getStorage(app);
 let analytics = null;
@@ -76,10 +82,23 @@ const storeUserData = async (user) => {
     return userData;
 };
 
+// Create helper function for phone authentication with international support
+const createRecaptchaVerifier = (auth, container, options) => {
+    return new RecaptchaVerifier(auth, container, {
+        size: 'normal',
+        callback: options?.callback || (() => { }),
+        'expired-callback': options?.['expired-callback'] || (() => { }),
+        // Force the recaptcha to render in the preferred language
+        // Remove this if you want it to use browser language
+        languageCode: 'en'
+    });
+};
+
 export {
     auth,
     db,
     storage,
     analytics,
-    storeUserData
+    storeUserData,
+    createRecaptchaVerifier
 };

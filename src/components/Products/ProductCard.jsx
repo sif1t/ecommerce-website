@@ -2,20 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
-import { FaShoppingCart, FaRegStar, FaStar, FaStarHalfAlt, FaTimes, FaEye } from 'react-icons/fa';
+import { FaShoppingCart, FaRegStar, FaStar, FaStarHalfAlt, FaTimes, FaEye, FaRegHeart, FaHeart, FaCheck } from 'react-icons/fa';
 import { fetchProductImage } from '../../api/imageService';
 
 const ProductCard = ({ product }) => {
-    const { addToCart } = useCart();
+    const { addToCart, isInCart } = useCart();
     const [productImage, setProductImage] = useState(product.imageUrl || null);
     const [isImageLoading, setIsImageLoading] = useState(true);
     const [showImageModal, setShowImageModal] = useState(false);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [imageLoadError, setImageLoadError] = useState(false);
+    const [isWishlist, setIsWishlist] = useState(false);
+    const [addedToCart, setAddedToCart] = useState(false);
+
+    // Calculate if product is on sale
+    const isOnSale = product.originalPrice && product.price < product.originalPrice;
+    const discountPercentage = isOnSale
+        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+        : 0;
+
+    // Check if product is new (released in last 14 days)
+    const isNewProduct = product.releaseDate
+        ? (new Date() - new Date(product.releaseDate)) / (1000 * 60 * 60 * 24) <= 14
+        : false;
 
     useEffect(() => {
         let isMounted = true;
         setIsImageLoading(true);
+
+        // Check if product is already in cart
+        setAddedToCart(isInCart ? isInCart(product.id) : false);
 
         // First try to use existing imageUrl from the product
         if (product.imageUrl && !imageLoadError) {
@@ -44,12 +60,24 @@ const ProductCard = ({ product }) => {
         return () => {
             isMounted = false; // Cleanup to prevent setting state on unmounted component
         };
-    }, [product, imageLoadError]);
+    }, [product, imageLoadError, isInCart]);
 
     const handleAddToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
         addToCart(product, 1);
+        setAddedToCart(true);
+
+        // Show added animation
+        setTimeout(() => {
+            setAddedToCart(false);
+        }, 2000);
+    };
+
+    const toggleWishlist = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsWishlist(!isWishlist);
     };
 
     const handleViewDetails = (e) => {
@@ -127,82 +155,158 @@ const ProductCard = ({ product }) => {
         <>
             <motion.div
                 whileHover={{
-                    scale: 1.03,
+                    y: -5,
                     boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)"
                 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-lg overflow-hidden border border-gray-200"
+                className="bg-white rounded-lg overflow-hidden border border-gray-200 relative h-full flex flex-col"
             >
-                <Link to={`/product/${product.id}`} className="block h-full">
-                    <div className="relative pb-2/3">
+                <Link to={`/product/${product.id}`} className="block flex-grow">
+                    <div className="relative">
                         {isImageLoading ? (
                             <div className="w-full h-48 bg-gray-200 animate-pulse flex items-center justify-center">
                                 <span className="text-gray-400">Loading image...</span>
                             </div>
                         ) : (
-                            <img
-                                src={productImage}
-                                alt={product.name}
-                                className="w-full h-48 object-cover hover:opacity-90 transition-opacity duration-300"
-                                onError={handleImageError}
-                            />
-                        )}
+                            <div className="relative overflow-hidden">
+                                <img
+                                    src={productImage}
+                                    alt={product.name}
+                                    className="w-full h-48 object-cover transition-transform duration-500 hover:scale-110"
+                                    onError={handleImageError}
+                                />
 
-                        {product.stock <= 5 && product.stock > 0 && (
-                            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                                Only {product.stock} left!
-                            </div>
-                        )}
+                                {/* Quick action buttons */}
+                                <div className="absolute top-2 right-2 flex flex-col space-y-2">
+                                    <button
+                                        onClick={toggleWishlist}
+                                        className="bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors"
+                                        aria-label="Add to wishlist"
+                                    >
+                                        {isWishlist ?
+                                            <FaHeart className="text-red-500" /> :
+                                            <FaRegHeart className="text-gray-600" />}
+                                    </button>
 
-                        {product.stock === 0 && (
-                            <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-                                <span className="text-white font-bold text-lg">Out of Stock</span>
+                                    <button
+                                        onClick={handleViewDetails}
+                                        className="bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors"
+                                        aria-label="Quick view"
+                                    >
+                                        <FaEye className="text-gray-600" />
+                                    </button>
+                                </div>
+
+                                {/* Product badges */}
+                                <div className="absolute top-2 left-2 flex flex-col gap-2">
+                                    {isOnSale && (
+                                        <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                            {discountPercentage}% OFF
+                                        </div>
+                                    )}
+
+                                    {isNewProduct && (
+                                        <div className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                            NEW
+                                        </div>
+                                    )}
+
+                                    {product.bestSeller && (
+                                        <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                            BEST SELLER
+                                        </div>
+                                    )}
+
+                                    {product.stock <= 5 && product.stock > 0 && (
+                                        <div className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                            Only {product.stock} left!
+                                        </div>
+                                    )}
+                                </div>
+
+                                {product.stock === 0 && (
+                                    <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+                                        <span className="text-white font-bold text-lg">Out of Stock</span>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
 
                     <div className="p-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-medium text-gray-900 truncate">{product.name}</h3>
-                            <span className="font-bold text-gray-900">${product.price.toFixed(2)}</span>
-                        </div>
+                        {/* Category */}
+                        {product.category && (
+                            <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                                {product.category}
+                            </div>
+                        )}
 
+                        {/* Product title */}
+                        <h3 className="text-lg font-medium text-gray-900 truncate">{product.name}</h3>
+
+                        {/* Product rating */}
                         {product.rating && (
                             <div className="mt-1">
                                 {renderRating(product.rating)}
                             </div>
                         )}
 
+                        {/* Product description */}
                         <p className="mt-2 text-gray-600 text-sm line-clamp-2 h-10">
                             {product.description}
                         </p>
 
-                        <div className="mt-4 flex justify-between items-center">
-                            <button
-                                className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
-                                onClick={handleViewDetails}
-                            >
-                                <FaEye className="mr-1" /> View Details
-                            </button>
-
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleAddToCart}
-                                disabled={product.stock === 0}
-                                className={`flex items-center px-3 py-2 rounded-md text-sm ${product.stock > 0
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                    : 'bg-gray-300 cursor-not-allowed text-gray-500'
-                                    }`}
-                            >
-                                <FaShoppingCart className="mr-1" />
-                                Add to Cart
-                            </motion.button>
+                        {/* Price section */}
+                        <div className="mt-2 flex items-center">
+                            {isOnSale ? (
+                                <>
+                                    <span className="font-bold text-lg text-gray-900">
+                                        ${product.price.toFixed(2)}
+                                    </span>
+                                    <span className="ml-2 text-sm text-gray-500 line-through">
+                                        ${product.originalPrice.toFixed(2)}
+                                    </span>
+                                </>
+                            ) : (
+                                <span className="font-bold text-lg text-gray-900">
+                                    ${product.price.toFixed(2)}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </Link>
+
+                {/* Call to action button */}
+                <div className="px-4 pb-4 mt-auto">
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleAddToCart}
+                        disabled={product.stock === 0 || addedToCart}
+                        className={`w-full flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${product.stock === 0
+                                ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                : addedToCart
+                                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            }`}
+                    >
+                        {product.stock === 0 ? (
+                            <>Out of Stock</>
+                        ) : addedToCart ? (
+                            <>
+                                <FaCheck className="mr-2" />
+                                Added to Cart
+                            </>
+                        ) : (
+                            <>
+                                <FaShoppingCart className="mr-2" />
+                                Add to Cart
+                            </>
+                        )}
+                    </motion.button>
+                </div>
             </motion.div>
 
             {/* Image Modal - Show 4 views when View Details is clicked */}
@@ -219,7 +323,7 @@ const ProductCard = ({ product }) => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white rounded-lg max-w-3xl w-full overflow-hidden relative"
+                            className="bg-white rounded-lg max-w-4xl w-full overflow-hidden relative"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <button
@@ -229,50 +333,126 @@ const ProductCard = ({ product }) => {
                                 <FaTimes className="text-gray-800" size={20} />
                             </button>
 
-                            <div className="p-4">
-                                <div className="mb-4">
-                                    <img
-                                        src={getProductImages()[selectedImageIndex]}
-                                        alt={`${product.name} - View ${selectedImageIndex + 1}`}
-                                        className="w-full h-72 object-contain mx-auto"
-                                        onError={handleImageError}
-                                    />
-                                </div>
-
-                                {/* Thumbnails for switching between views */}
-                                <div className="grid grid-cols-4 gap-2">
-                                    {getProductImages().map((image, index) => (
-                                        <div
-                                            key={`modal-thumb-${index}`}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setSelectedImageIndex(index);
-                                            }}
-                                            className={`cursor-pointer rounded-md overflow-hidden border-2 ${selectedImageIndex === index ? 'border-blue-500' : 'border-transparent'}`}
-                                        >
+                            <div className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Left: Product Image */}
+                                    <div>
+                                        <div className="mb-4 bg-gray-50 rounded-lg overflow-hidden">
                                             <img
-                                                src={image}
-                                                alt={`${product.name} view ${index + 1}`}
-                                                className="w-full h-16 object-cover hover:opacity-80 transition-opacity duration-200"
+                                                src={getProductImages()[selectedImageIndex]}
+                                                alt={`${product.name} - View ${selectedImageIndex + 1}`}
+                                                className="w-full h-80 object-contain mx-auto"
                                                 onError={handleImageError}
                                             />
                                         </div>
-                                    ))}
-                                </div>
 
-                                <div className="mt-4 flex justify-between items-center">
-                                    <div>
-                                        <h3 className="text-xl font-semibold text-gray-900">{product.name}</h3>
-                                        <p className="text-lg font-bold text-gray-900">${product.price.toFixed(2)}</p>
+                                        {/* Thumbnails for switching between views */}
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {getProductImages().map((image, index) => (
+                                                <div
+                                                    key={`modal-thumb-${index}`}
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        setSelectedImageIndex(index);
+                                                    }}
+                                                    className={`cursor-pointer rounded-md overflow-hidden border-2 ${selectedImageIndex === index ? 'border-blue-500' : 'border-transparent'}`}
+                                                >
+                                                    <img
+                                                        src={image}
+                                                        alt={`${product.name} view ${index + 1}`}
+                                                        className="w-full h-16 object-cover hover:opacity-80 transition-opacity duration-200"
+                                                        onError={handleImageError}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <Link
-                                        to={`/product/${product.id}`}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        Go To Product
-                                    </Link>
+
+                                    {/* Right: Product Details */}
+                                    <div>
+                                        {product.category && (
+                                            <div className="text-sm text-blue-600 font-medium mb-1">
+                                                {product.category}
+                                            </div>
+                                        )}
+
+                                        <h3 className="text-2xl font-semibold text-gray-900 mb-2">{product.name}</h3>
+
+                                        {product.rating && (
+                                            <div className="mb-3">
+                                                {renderRating(product.rating)}
+                                            </div>
+                                        )}
+
+                                        <div className="mb-4">
+                                            {isOnSale ? (
+                                                <div className="flex items-center">
+                                                    <span className="text-2xl font-bold text-gray-900">
+                                                        ${product.price.toFixed(2)}
+                                                    </span>
+                                                    <span className="ml-2 text-lg text-gray-500 line-through">
+                                                        ${product.originalPrice.toFixed(2)}
+                                                    </span>
+                                                    <span className="ml-2 text-sm text-white bg-red-500 px-2 py-1 rounded">
+                                                        Save {discountPercentage}%
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-2xl font-bold text-gray-900">
+                                                    ${product.price.toFixed(2)}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <p className="text-gray-600 mb-6">
+                                            {product.description}
+                                        </p>
+
+                                        {/* Availability */}
+                                        <div className="flex items-center mb-4">
+                                            <span className="text-gray-700 font-medium mr-2">Availability:</span>
+                                            {product.stock > 10 ? (
+                                                <span className="text-green-600 flex items-center">
+                                                    <FaCheck className="mr-1" /> In Stock
+                                                </span>
+                                            ) : product.stock > 0 ? (
+                                                <span className="text-orange-500">
+                                                    Low Stock ({product.stock} left)
+                                                </span>
+                                            ) : (
+                                                <span className="text-red-500">
+                                                    Out of Stock
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="mt-6 space-y-3">
+                                            <Link
+                                                to={`/product/${product.id}`}
+                                                className="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-medium transition-colors duration-200"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                View Full Details
+                                            </Link>
+
+                                            <button
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    handleAddToCart(e);
+                                                }}
+                                                disabled={product.stock === 0}
+                                                className={`w-full flex items-center justify-center py-3 px-4 rounded-md font-medium ${product.stock === 0
+                                                        ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                                        : 'bg-green-600 hover:bg-green-700 text-white'
+                                                    }`}
+                                            >
+                                                <FaShoppingCart className="mr-2" />
+                                                Add to Cart
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>

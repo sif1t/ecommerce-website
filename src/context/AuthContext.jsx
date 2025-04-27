@@ -6,7 +6,11 @@ import {
     signOut,
     signInWithPopup,
     GoogleAuthProvider,
-    onAuthStateChanged
+    onAuthStateChanged,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+    PhoneAuthProvider,
+    signInWithCredential
 } from 'firebase/auth';
 import {
     auth,
@@ -19,6 +23,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [verificationId, setVerificationId] = useState(null);
 
     // Set up auth state listener
     useEffect(() => {
@@ -27,7 +32,8 @@ export const AuthProvider = ({ children }) => {
                 uid: currentUser.uid,
                 email: currentUser.email,
                 name: currentUser.displayName || 'User',
-                photoURL: currentUser.photoURL
+                photoURL: currentUser.photoURL,
+                phoneNumber: currentUser.phoneNumber
             } : null);
             setLoading(false);
         });
@@ -35,6 +41,28 @@ export const AuthProvider = ({ children }) => {
         // Cleanup subscription on unmount
         return () => unsubscribe();
     }, []);
+
+    // Setup Recaptcha Verifier
+    const setupRecaptcha = (containerRef, verifierRef) => {
+        if (!containerRef.current || verifierRef.current) return;
+
+        try {
+            const recaptchaVerifier = new RecaptchaVerifier(auth, containerRef.current, {
+                'size': 'normal',
+                'callback': () => {
+                    // reCAPTCHA solved, allow sign in
+                },
+                'expired-callback': () => {
+                    toast.error('reCAPTCHA has expired. Please solve it again.');
+                }
+            });
+
+            recaptchaVerifier.render();
+            verifierRef.current = recaptchaVerifier;
+        } catch (err) {
+            console.error('Error setting up reCAPTCHA:', err);
+        }
+    };
 
     // Email/Password Login
     const login = async (credentials) => {
@@ -113,6 +141,56 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Phone Number Sign In
+    const signInWithPhone = async (phoneNumber, appVerifier) => {
+        try {
+            setError(null);
+            setLoading(true);
+            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            setVerificationId(confirmationResult.verificationId);
+            toast.success('OTP sent to your phone number!');
+            return true;
+        } catch (err) {
+            const errorMessage = getFirebaseAuthErrorMessage(err);
+            setError(errorMessage);
+            toast.error(errorMessage);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Verify OTP
+    const verifyOTP = async (otp) => {
+        try {
+            setError(null);
+            setLoading(true);
+
+            if (!verificationId) {
+                toast.error('No verification ID found. Please request OTP again.');
+                return false;
+            }
+
+            const PhoneAuthCredential = PhoneAuthProvider.credential(verificationId, otp);
+            const userCredential = await signInWithCredential(auth, PhoneAuthCredential);
+            const loggedInUser = userCredential.user;
+
+            // Store user data
+            await storeUserData(loggedInUser);
+
+            toast.success('Phone number verified successfully!');
+            setVerificationId(null);
+            return true;
+        } catch (err) {
+            const errorMessage = getFirebaseAuthErrorMessage(err);
+            setError(errorMessage);
+            toast.error(errorMessage);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Logout
     const logout = async () => {
         try {
@@ -155,6 +233,12 @@ export const AuthProvider = ({ children }) => {
                 return 'Invalid API key. Please contact support.';
             case 'auth/network-request-failed':
                 return 'Network error occurred. Please check your internet connection.';
+            case 'auth/invalid-verification-code':
+                return 'Invalid verification code. Please try again.';
+            case 'auth/invalid-verification-id':
+                return 'Invalid verification ID. Please request a new code.';
+            case 'auth/code-expired':
+                return 'Verification code has expired. Please request a new code.';
             default:
                 return error.message || error.errorMessage || 'An unknown error occurred.';
         }
@@ -169,7 +253,10 @@ export const AuthProvider = ({ children }) => {
             login,
             register,
             signInWithGoogle,
-            logout
+            signInWithPhone,
+            verifyOTP,
+            logout,
+            setupRecaptcha
         }}>
             {children}
         </AuthContext.Provider>

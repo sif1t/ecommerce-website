@@ -80,6 +80,17 @@ export const CartProvider = ({ children }) => {
         toast.info('Cart cleared');
     };
 
+    // Check if a product is in the cart
+    const isInCart = (productId) => {
+        return cartItems.some(item => item.id === productId);
+    };
+
+    // Get the quantity of a product in the cart
+    const getCartItemQuantity = (productId) => {
+        const item = cartItems.find(item => item.id === productId);
+        return item ? item.quantity : 0;
+    };
+
     return (
         <CartContext.Provider value={{
             cartItems,
@@ -88,7 +99,9 @@ export const CartProvider = ({ children }) => {
             addToCart,
             removeFromCart,
             updateCartItemQuantity,
-            clearCart
+            clearCart,
+            isInCart,
+            getCartItemQuantity
         }}>
             {children}
         </CartContext.Provider>
