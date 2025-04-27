@@ -391,7 +391,7 @@ const localData = {
             name: "Dumbbell Set",
             price: 119.99,
             description: "Adjustable weights for home strength training",
-            imageUrl: "https://via.placeholder.com/300",
+            imageUrl: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=300&h=300&fit=crop",
             category: "fitness",
             rating: 4.6,
             stock: 4
@@ -402,7 +402,7 @@ const localData = {
             name: "Luxury Skincare Set",
             price: 89.99,
             description: "Complete skincare routine with cleanser, moisturizer, and serum",
-            imageUrl: "https://via.placeholder.com/300",
+            imageUrl: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=300&h=300&fit=crop",
             category: "beauty",
             rating: 4.7,
             stock: 12
@@ -412,7 +412,7 @@ const localData = {
             name: "Professional Hair Dryer",
             price: 129.99,
             description: "Salon-quality hair dryer with multiple heat and speed settings",
-            imageUrl: "https://via.placeholder.com/300",
+            imageUrl: "https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=300&h=300&fit=crop",
             category: "beauty",
             rating: 4.5,
             stock: 8
@@ -422,7 +422,7 @@ const localData = {
             name: "Organic Face Mask Collection",
             price: 24.99,
             description: "Set of 5 natural ingredient face masks for different skin concerns",
-            imageUrl: "https://via.placeholder.com/300",
+            imageUrl: "https://images.unsplash.com/photo-1570554886111-e80fcca6a029?w=300&h=300&fit=crop",
             category: "beauty",
             rating: 4.3,
             stock: 20,
@@ -434,7 +434,7 @@ const localData = {
             name: "Premium Makeup Brush Set",
             price: 49.99,
             description: "12-piece professional quality makeup brush collection with case",
-            imageUrl: "https://via.placeholder.com/300",
+            imageUrl: "https://images.unsplash.com/photo-1567721913486-6585f069b332?w=300&h=300&fit=crop",
             category: "beauty",
             rating: 4.6,
             stock: 15
@@ -444,7 +444,7 @@ const localData = {
             name: "Natural Perfume",
             price: 69.99,
             description: "Long-lasting fragrance with notes of jasmine and sandalwood",
-            imageUrl: "https://via.placeholder.com/300",
+            imageUrl: "https://images.unsplash.com/photo-1608377205693-e5cc1d5f5f17?w=300&h=300&fit=crop",
             category: "beauty",
             rating: 4.4,
             stock: 10
