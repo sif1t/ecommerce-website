@@ -1,656 +1,477 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../context/AuthContext';
+import { FaSearch, FaShoppingCart, FaUser, FaHeart, FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
-import {
-    FaShoppingCart,
-    FaUser,
-    FaSearch,
-    FaBars,
-    FaTimes,
-    FaHeart,
-    FaSignOutAlt,
-    FaPhoneAlt,
-    FaEnvelope,
-    FaTruck,
-    FaTags,
-    FaHeadset,
-    FaChevronDown,
-    FaBox
-} from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
+
+// Sample mega menu data
+const megaMenuData = {
+    categories: [
+        {
+            name: 'Electronics',
+            subcategories: [
+                { name: 'Smartphones', link: '/shop?category=smartphones' },
+                { name: 'Laptops', link: '/shop?category=laptops' },
+                { name: 'Audio', link: '/shop?category=audio' },
+                { name: 'Accessories', link: '/shop?category=accessories' }
+            ]
+        },
+        {
+            name: 'Fashion',
+            subcategories: [
+                { name: "Men's Clothing", link: '/shop?category=mens-clothing' },
+                { name: "Women's Clothing", link: '/shop?category=womens-clothing' },
+                { name: 'Footwear', link: '/shop?category=footwear' },
+                { name: 'Accessories', link: '/shop?category=fashion-accessories' }
+            ]
+        },
+        {
+            name: 'Home & Living',
+            subcategories: [
+                { name: 'Furniture', link: '/shop?category=furniture' },
+                { name: 'Decor', link: '/shop?category=decor' },
+                { name: 'Kitchen', link: '/shop?category=kitchen' },
+                { name: 'Bath', link: '/shop?category=bath' }
+            ]
+        }
+    ],
+    featured: [
+        {
+            name: 'Summer Collection',
+            description: 'New arrivals for the season',
+            image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=300&auto=format&fit=crop',
+            link: '/shop?collection=summer'
+        },
+        {
+            name: 'Special Offers',
+            description: 'Up to 50% off selected items',
+            image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=300&auto=format&fit=crop',
+            link: '/shop?discount=true'
+        }
+    ]
+};
 
 const Header = () => {
-    const { isAuthenticated, user, logout } = useAuth();
-    const { cartItems, totalItems } = useCart();
-    const navigate = useNavigate();
+    const { cart } = useCart();
+    const { currentUser, logout } = useAuth();
     const location = useLocation();
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
-    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [megaMenuVisible, setMegaMenuVisible] = useState(false);
     const [activeMegaMenu, setActiveMegaMenu] = useState(null);
-    const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(null);
 
-    const userMenuRef = useRef(null);
-    const megaMenuTimeoutRef = useRef(null);
+    const headerRef = useRef(null);
+    const searchInputRef = useRef(null);
 
-    // Listen for scroll to apply sticky header effects
+    // Detect scroll position to change header style
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
+            const scrollPosition = window.scrollY;
+            setIsScrolled(scrollPosition > 50);
         };
 
         window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Close menus when clicking outside
+    // Close mega menu when clicking outside
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-                setUserMenuOpen(false);
+        const handleOutsideClick = (e) => {
+            if (headerRef.current && !headerRef.current.contains(e.target)) {
+                setMegaMenuVisible(false);
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => document.removeEventListener('mousedown', handleOutsideClick);
     }, []);
 
-    // Close mobile menu on route change
+    // Focus search input when opened
     useEffect(() => {
-        setIsMenuOpen(false);
-        setUserMenuOpen(false);
-        setActiveMegaMenu(null);
+        if (searchOpen && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [searchOpen]);
+
+    // Close mobile menu on location change
+    useEffect(() => {
+        setMobileMenuOpen(false);
     }, [location.pathname]);
 
-    const handleSearch = (e) => {
+    const handleSearchSubmit = (e) => {
         e.preventDefault();
-        if (searchTerm.trim()) {
-            navigate(`/shop?search=${encodeURIComponent(searchTerm.trim())}`);
-            setIsSearchOpen(false);
-            setSearchTerm('');
+        // Implement search functionality
+        if (searchQuery.trim()) {
+            // Navigate to search results page
+            window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`;
+            setSearchOpen(false);
+            setSearchQuery('');
         }
     };
 
-    const handleLogout = async () => {
-        await logout();
-        navigate('/');
-    };
-
-    const handleMegaMenuEnter = (menuName) => {
-        clearTimeout(megaMenuTimeoutRef.current);
-        setActiveMegaMenu(menuName);
-    };
-
-    const handleMegaMenuLeave = () => {
-        megaMenuTimeoutRef.current = setTimeout(() => {
+    const handleMegaMenuToggle = (category) => {
+        if (activeMegaMenu === category) {
+            setMegaMenuVisible(false);
             setActiveMegaMenu(null);
-        }, 300);
-    };
-
-    const toggleMobileSubmenu = (menuName) => {
-        setMobileSubmenuOpen(mobileSubmenuOpen === menuName ? null : menuName);
-    };
-
-    // Navigation Items with mega menu support
-    const navItems = [
-        {
-            name: 'Home',
-            path: '/'
-        },
-        {
-            name: 'Shop',
-            path: '/shop',
-            hasMegaMenu: true,
-            megaMenuContent: {
-                featured: [
-                    { name: 'New Arrivals', path: '/shop?sort=newest' },
-                    { name: 'Best Sellers', path: '/shop?sort=popular' },
-                    { name: 'Top Rated', path: '/shop?sort=rating' },
-                    { name: 'Sale Items', path: '/shop?sale=true' }
-                ],
-                categories: [
-                    { name: 'Electronics', path: '/shop?category=electronics', icon: 'FaLaptop' },
-                    { name: 'Clothing', path: '/shop?category=clothing', icon: 'FaTshirt' },
-                    { name: 'Home & Garden', path: '/shop?category=home', icon: 'FaHome' },
-                    { name: 'Sports', path: '/shop?category=sports', icon: 'FaRunning' },
-                    { name: 'Beauty', path: '/shop?category=beauty', icon: 'FaSprayCan' },
-                    { name: 'Books', path: '/shop?category=books', icon: 'FaBook' },
-                    { name: 'Toys', path: '/shop?category=toys', icon: 'FaGamepad' },
-                    { name: 'Jewelry', path: '/shop?category=jewelry', icon: 'FaGem' }
-                ]
-            }
-        },
-        {
-            name: 'Electronics',
-            path: '/shop?category=electronics',
-            hasMegaMenu: true,
-            megaMenuContent: {
-                featured: [
-                    { name: 'Latest Tech', path: '/shop?category=electronics&sort=newest' },
-                    { name: 'Gaming Gear', path: '/shop?category=electronics&subcategory=gaming' },
-                    { name: 'Smart Home', path: '/shop?category=electronics&subcategory=smarthome' },
-                    { name: 'Deals', path: '/shop?category=electronics&sale=true' }
-                ],
-                categories: [
-                    { name: 'Phones & Tablets', path: '/shop?category=electronics&subcategory=phones' },
-                    { name: 'Laptops', path: '/shop?category=electronics&subcategory=laptops' },
-                    { name: 'TVs & Home Theater', path: '/shop?category=electronics&subcategory=tv' },
-                    { name: 'Audio', path: '/shop?category=electronics&subcategory=audio' },
-                    { name: 'Cameras', path: '/shop?category=electronics&subcategory=cameras' },
-                    { name: 'Wearables', path: '/shop?category=electronics&subcategory=wearables' }
-                ]
-            }
-        },
-        {
-            name: 'Clothing',
-            path: '/shop?category=clothing',
-            hasMegaMenu: true,
-            megaMenuContent: {
-                featured: [
-                    { name: 'Summer Collection', path: '/shop?category=clothing&collection=summer' },
-                    { name: 'Winter Essentials', path: '/shop?category=clothing&collection=winter' },
-                    { name: 'Workwear', path: '/shop?category=clothing&type=work' },
-                    { name: 'Sale', path: '/shop?category=clothing&sale=true' }
-                ],
-                categories: [
-                    { name: 'Men', path: '/shop?category=clothing&gender=men' },
-                    { name: 'Women', path: '/shop?category=clothing&gender=women' },
-                    { name: 'Kids', path: '/shop?category=clothing&gender=kids' },
-                    { name: 'Accessories', path: '/shop?category=clothing&type=accessories' }
-                ]
-            }
-        },
-        {
-            name: 'Sale',
-            path: '/shop?sale=true',
+        } else {
+            setMegaMenuVisible(true);
+            setActiveMegaMenu(category);
         }
-    ];
+    };
+
+    // Calculate total cart items
+    const cartItemCount = cart?.reduce((total, item) => total + item.quantity, 0) || 0;
 
     return (
-        <>
-            {/* Top bar - Only visible on desktop */}
-            <div className={`hidden md:block bg-gray-900 text-white py-2 ${isScrolled ? 'h-0 overflow-hidden opacity-0' : ''} transition-all duration-300`}>
-                <div className="container mx-auto px-4 flex justify-between items-center">
-                    <div className="flex items-center space-x-4">
-                        <div className="flex items-center text-xs">
-                            <FaPhoneAlt className="mr-2 text-blue-400" size={12} />
-                            <span>Customer Support: +1 234 5678</span>
+        <header
+            ref={headerRef}
+            className={`fixed top-0 left-0 w-full z-40 transition-all duration-300 ${isScrolled
+                    ? 'bg-white shadow-md py-2'
+                    : 'bg-transparent py-3'
+                }`}
+        >
+            <div className="container mx-auto px-4">
+                <div className="flex items-center justify-between">
+                    {/* Logo */}
+                    <Link to="/" className="mr-8">
+                        <div className="flex items-center">
+                            <span className={`font-bold text-2xl ${isScrolled ? 'text-blue-600' : 'text-white'}`}>
+                                LUXEMART
+                            </span>
                         </div>
-                        <div className="flex items-center text-xs">
-                            <FaEnvelope className="mr-2 text-blue-400" size={12} />
-                            <span>Email: support@shopex.com</span>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-4 text-xs">
-                        <Link to="/shipping" className="hover:text-blue-400 flex items-center">
-                            <FaTruck className="mr-1" size={12} /> Shipping
-                        </Link>
-                        <Link to="/returns" className="hover:text-blue-400 flex items-center">
-                            <FaBox className="mr-1" size={12} /> Returns
-                        </Link>
-                        <Link to="/help" className="hover:text-blue-400 flex items-center">
-                            <FaHeadset className="mr-1" size={12} /> Help Center
-                        </Link>
-                    </div>
-                </div>
-            </div>
+                    </Link>
 
-            {/* Main header */}
-            <header
-                className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-3' : 'bg-white shadow-sm py-5'
-                    }`}
-                style={{ marginTop: isScrolled ? '0' : '0' }}
-            >
-                <div className="container mx-auto px-4">
-                    <div className="flex items-center justify-between">
-                        {/* Logo */}
-                        <Link to="/" className="text-2xl font-bold text-blue-600 flex items-center">
-                            <svg
-                                className="w-8 h-8 mr-2"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                            >
-                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                            </svg>
-                            ShopEx
+                    {/* Desktop Navigation - Hidden on mobile */}
+                    <nav className="hidden lg:flex items-center space-x-1 flex-grow">
+                        <Link
+                            to="/"
+                            className={`px-4 py-2 rounded-md font-medium transition-colors ${location.pathname === '/'
+                                    ? 'text-blue-600'
+                                    : isScrolled ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                                }`}
+                        >
+                            Home
                         </Link>
 
-                        {/* Search Bar - Always visible on desktop */}
-                        <div className="hidden md:flex flex-1 max-w-lg mx-6">
-                            <form onSubmit={handleSearch} className="flex w-full">
-                                <input
-                                    type="text"
-                                    placeholder="Search for products..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                />
-                                <button
-                                    type="submit"
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 transition-colors"
-                                >
-                                    <FaSearch />
-                                </button>
-                            </form>
-                        </div>
-
-                        {/* Right Section - Action Buttons */}
-                        <div className="flex items-center space-x-1 md:space-x-4">
-                            {/* Search Button - Only visible on mobile */}
+                        {/* Shop dropdown with mega menu */}
+                        <div className="relative">
                             <button
-                                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                                className="md:hidden p-2 text-gray-700 hover:text-blue-600"
-                                aria-label="Search"
+                                className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center ${location.pathname.includes('/shop')
+                                        ? 'text-blue-600'
+                                        : isScrolled ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                                    }`}
+                                onClick={() => handleMegaMenuToggle('shop')}
+                                aria-expanded={activeMegaMenu === 'shop'}
                             >
-                                <FaSearch />
+                                Shop
+                                <FaChevronDown className={`ml-1.5 w-3 h-3 transition-transform ${megaMenuVisible && activeMegaMenu === 'shop' ? 'rotate-180' : ''}`} />
                             </button>
 
-                            {/* Sale Button - Only shown on desktop */}
-                            <Link
-                                to="/shop?sale=true"
-                                className="hidden md:flex items-center px-3 py-1.5 rounded-full bg-red-600 text-white text-sm"
-                            >
-                                <FaTags className="mr-1" size={12} />
-                                <span>Sale</span>
-                            </Link>
-
-                            {/* Wishlist - Only shown on large screens */}
-                            <Link to="/wishlist" className="hidden md:flex items-center p-2 text-gray-700 hover:text-blue-600" aria-label="Wishlist">
-                                <FaHeart />
-                                <span className="ml-1 text-sm font-medium">Wishlist</span>
-                            </Link>
-
-                            {/* Cart Link with Counter */}
-                            <Link to="/cart" className="flex items-center p-2 text-gray-700 hover:text-blue-600 relative" aria-label="Shopping Cart">
-                                <FaShoppingCart />
-                                {totalItems > 0 && (
-                                    <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                                        {totalItems > 9 ? '9+' : totalItems}
-                                    </span>
-                                )}
-                                <span className="ml-1 hidden md:inline text-sm font-medium">Cart</span>
-                            </Link>
-
-                            {/* User Account Menu */}
-                            <div className="relative" ref={userMenuRef}>
-                                <button
-                                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                    className="p-2 text-gray-700 hover:text-blue-600 flex items-center"
-                                    aria-label="User Account"
-                                >
-                                    <FaUser />
-                                    <span className="hidden md:inline ml-1 text-sm font-medium">
-                                        {isAuthenticated ? user?.name?.split(' ')[0] || 'Account' : 'Account'}
-                                    </span>
-                                    <FaChevronDown className="ml-1" size={12} />
-                                </button>
-
-                                {/* User Dropdown Menu */}
-                                <AnimatePresence>
-                                    {userMenuOpen && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 10 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="absolute right-0 mt-2 w-64 py-2 bg-white rounded-md shadow-lg border border-gray-100 z-20"
-                                        >
-                                            {isAuthenticated ? (
-                                                <>
-                                                    <div className="px-4 py-3 border-b border-gray-100">
-                                                        <p className="text-sm font-medium text-gray-900">Welcome back,</p>
-                                                        <p className="text-sm font-bold text-blue-600">{user.name}</p>
-                                                        <p className="text-xs text-gray-500 truncate mt-1">{user.email}</p>
-                                                    </div>
-                                                    <div className="py-1">
-                                                        <Link to="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Account</Link>
-                                                        <Link to="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</Link>
-                                                        <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Wishlist</Link>
-                                                        <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</Link>
-                                                    </div>
-                                                    <div className="py-1 border-t border-gray-100">
-                                                        <button
-                                                            onClick={handleLogout}
-                                                            className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                                        >
-                                                            <FaSignOutAlt className="mr-2" /> Sign out
-                                                        </button>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="px-4 py-3 border-b border-gray-100">
-                                                        <p className="text-sm text-gray-500">Welcome to ShopEx</p>
-                                                    </div>
-                                                    <div className="py-1">
-                                                        <Link to="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign in</Link>
-                                                        <Link to="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Create account</Link>
-                                                    </div>
-                                                    <div className="px-4 py-3 text-xs text-gray-500 border-t border-gray-100">
-                                                        <p>Sign in to track orders, save products, and get personalized recommendations.</p>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* Mobile Menu Button - Only visible on small screens */}
-                            <button
-                                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="md:hidden p-2 text-gray-700 hover:text-blue-600 focus:outline-none"
-                                aria-label={isMenuOpen ? 'Close Menu' : 'Open Menu'}
-                            >
-                                {isMenuOpen ? <FaTimes /> : <FaBars />}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Desktop Navigation - Below search bar */}
-                    <div className="hidden md:block border-t border-gray-100 mt-4 pt-2">
-                        <nav className="flex items-center justify-center space-x-8">
-                            {navItems.map(item => (
-                                <div
-                                    key={item.path}
-                                    className="relative group"
-                                    onMouseEnter={() => item.hasMegaMenu ? handleMegaMenuEnter(item.name) : null}
-                                    onMouseLeave={handleMegaMenuLeave}
-                                >
-                                    <Link
-                                        to={item.path}
-                                        className={`text-sm font-medium py-2 transition-colors hover:text-blue-600 flex items-center
-                                            ${location.pathname === item.path ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700'}`}
+                            {/* Mega Menu */}
+                            <AnimatePresence>
+                                {megaMenuVisible && activeMegaMenu === 'shop' && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-xl p-6 w-[600px] grid grid-cols-4 gap-6"
+                                        onMouseLeave={() => setMegaMenuVisible(false)}
                                     >
-                                        {item.name}
-                                        {item.hasMegaMenu && <FaChevronDown className="ml-1" size={12} />}
-                                    </Link>
-
-                                    {/* Mega Menu */}
-                                    {item.hasMegaMenu && activeMegaMenu === item.name && (
-                                        <div
-                                            className="absolute top-full left-0 mt-2 w-screen max-w-7xl bg-white shadow-lg border border-gray-200 rounded-lg z-30"
-                                            style={{ left: '50%', transform: 'translateX(-50%)' }}
-                                            onMouseEnter={() => handleMegaMenuEnter(item.name)}
-                                            onMouseLeave={handleMegaMenuLeave}
-                                        >
-                                            <div className="grid grid-cols-5 gap-6 p-6">
-                                                {/* Featured Section */}
-                                                <div className="col-span-1 border-r border-gray-200">
-                                                    <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3">Featured</h3>
+                                        {/* Categories section - 3 columns */}
+                                        <div className="col-span-3 grid grid-cols-3 gap-6">
+                                            {megaMenuData.categories.map((category, index) => (
+                                                <div key={index} className="space-y-4">
+                                                    <h3 className="font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                                                        {category.name}
+                                                    </h3>
                                                     <ul className="space-y-2">
-                                                        {item.megaMenuContent?.featured.map((subItem, index) => (
-                                                            <li key={index}>
+                                                        {category.subcategories.map((subcategory, idx) => (
+                                                            <li key={idx}>
                                                                 <Link
-                                                                    to={subItem.path}
-                                                                    className="text-gray-600 hover:text-blue-600 text-sm block py-1 transition-colors"
+                                                                    to={subcategory.link}
+                                                                    className="text-gray-600 hover:text-blue-600 text-sm block transition-colors"
                                                                 >
-                                                                    {subItem.name}
+                                                                    {subcategory.name}
                                                                 </Link>
                                                             </li>
                                                         ))}
                                                     </ul>
                                                 </div>
+                                            ))}
+                                        </div>
 
-                                                {/* Categories Section */}
-                                                <div className="col-span-3">
-                                                    <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3">Browse Categories</h3>
-                                                    <div className="grid grid-cols-3 gap-4">
-                                                        {item.megaMenuContent?.categories.map((category, index) => (
-                                                            <Link
-                                                                key={index}
-                                                                to={category.path}
-                                                                className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 p-3 rounded transition-colors flex items-center"
-                                                            >
-                                                                {category.name}
-                                                            </Link>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                {/* Promotion */}
-                                                <div className="col-span-1 bg-gray-50 rounded-lg p-4 flex flex-col justify-center">
-                                                    <h3 className="font-bold text-lg mb-2">Special Offers</h3>
-                                                    <p className="text-sm text-gray-600 mb-3">Get up to 50% off on selected items.</p>
-                                                    <Link
-                                                        to="/shop?sale=true"
-                                                        className="bg-blue-600 text-white text-center text-sm py-2 px-4 rounded hover:bg-blue-700 transition-colors mt-auto"
-                                                    >
-                                                        Shop Now
+                                        {/* Featured section - 1 column */}
+                                        <div className="col-span-1 space-y-4">
+                                            <h3 className="font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                                                Featured
+                                            </h3>
+                                            <div className="space-y-4">
+                                                {megaMenuData.featured.map((item, index) => (
+                                                    <Link key={index} to={item.link} className="block group">
+                                                        <div className="rounded-lg overflow-hidden mb-2">
+                                                            <img
+                                                                src={item.image}
+                                                                alt={item.name}
+                                                                className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300"
+                                                            />
+                                                        </div>
+                                                        <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                                                            {item.name}
+                                                        </h4>
+                                                        <p className="text-xs text-gray-600">{item.description}</p>
                                                     </Link>
-                                                </div>
+                                                ))}
                                             </div>
                                         </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        <Link
+                            to="/categories"
+                            className={`px-4 py-2 rounded-md font-medium transition-colors ${location.pathname === '/categories'
+                                    ? 'text-blue-600'
+                                    : isScrolled ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                                }`}
+                        >
+                            Categories
+                        </Link>
+
+                        <Link
+                            to="/about"
+                            className={`px-4 py-2 rounded-md font-medium transition-colors ${location.pathname === '/about'
+                                    ? 'text-blue-600'
+                                    : isScrolled ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                                }`}
+                        >
+                            About
+                        </Link>
+
+                        <Link
+                            to="/contact"
+                            className={`px-4 py-2 rounded-md font-medium transition-colors ${location.pathname === '/contact'
+                                    ? 'text-blue-600'
+                                    : isScrolled ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                                }`}
+                        >
+                            Contact
+                        </Link>
+                    </nav>
+
+                    {/* Right side actions */}
+                    <div className="flex items-center space-x-2 sm:space-x-4">
+                        {/* Search button */}
+                        <button
+                            onClick={() => setSearchOpen(true)}
+                            className={`p-2 rounded-full hover:bg-opacity-10 transition-colors ${isScrolled
+                                    ? 'hover:bg-gray-200 text-gray-800'
+                                    : 'hover:bg-white text-white'
+                                }`}
+                            aria-label="Search"
+                        >
+                            <FaSearch className="w-5 h-5" />
+                        </button>
+
+                        {/* Wishlist - Hidden on small screens */}
+                        <Link
+                            to="/wishlist"
+                            className={`p-2 rounded-full hover:bg-opacity-10 transition-colors hidden sm:flex ${isScrolled
+                                    ? 'hover:bg-gray-200 text-gray-800'
+                                    : 'hover:bg-white text-white'
+                                }`}
+                            aria-label="Wishlist"
+                        >
+                            <FaHeart className="w-5 h-5" />
+                        </Link>
+
+                        {/* User actions */}
+                        <div className="relative">
+                            <Link
+                                to={currentUser ? "/account" : "/login"}
+                                className={`p-2 rounded-full hover:bg-opacity-10 transition-colors ${isScrolled
+                                        ? 'hover:bg-gray-200 text-gray-800'
+                                        : 'hover:bg-white text-white'
+                                    }`}
+                                aria-label={currentUser ? "My Account" : "Login"}
+                            >
+                                <FaUser className="w-5 h-5" />
+                            </Link>
+                        </div>
+
+                        {/* Cart */}
+                        <Link
+                            to="/cart"
+                            className={`p-2 rounded-full relative hover:bg-opacity-10 transition-colors ${isScrolled
+                                    ? 'hover:bg-gray-200 text-gray-800'
+                                    : 'hover:bg-white text-white'
+                                }`}
+                            aria-label="Shopping Cart"
+                        >
+                            <FaShoppingCart className="w-5 h-5" />
+                            {cartItemCount > 0 && (
+                                <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                    {cartItemCount}
+                                </span>
+                            )}
+                        </Link>
+
+                        {/* Mobile menu button */}
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className={`lg:hidden p-2 rounded-full hover:bg-opacity-10 transition-colors ${isScrolled
+                                    ? 'hover:bg-gray-200 text-gray-800'
+                                    : 'hover:bg-white text-white'
+                                }`}
+                            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                        >
+                            {mobileMenuOpen ? (
+                                <FaTimes className="w-5 h-5" />
+                            ) : (
+                                <FaBars className="w-5 h-5" />
+                            )}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile menu */}
+            <AnimatePresence>
+                {mobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="lg:hidden bg-white shadow-lg overflow-hidden"
+                    >
+                        <div className="py-4 px-4">
+                            <nav className="flex flex-col space-y-3">
+                                <Link
+                                    to="/"
+                                    className={`px-4 py-2 rounded-md ${location.pathname === '/' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
+                                >
+                                    Home
+                                </Link>
+                                <Link
+                                    to="/shop"
+                                    className={`px-4 py-2 rounded-md ${location.pathname === '/shop' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
+                                >
+                                    Shop
+                                </Link>
+                                <Link
+                                    to="/categories"
+                                    className={`px-4 py-2 rounded-md ${location.pathname === '/categories' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
+                                >
+                                    Categories
+                                </Link>
+                                <Link
+                                    to="/about"
+                                    className={`px-4 py-2 rounded-md ${location.pathname === '/about' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
+                                >
+                                    About
+                                </Link>
+                                <Link
+                                    to="/contact"
+                                    className={`px-4 py-2 rounded-md ${location.pathname === '/contact' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
+                                >
+                                    Contact
+                                </Link>
+
+                                <div className="border-t border-gray-200 pt-3 mt-3">
+                                    {currentUser ? (
+                                        <>
+                                            <Link
+                                                to="/account"
+                                                className="px-4 py-2 rounded-md block text-gray-800"
+                                            >
+                                                My Account
+                                            </Link>
+                                            <Link
+                                                to="/orders"
+                                                className="px-4 py-2 rounded-md block text-gray-800"
+                                            >
+                                                My Orders
+                                            </Link>
+                                            <button
+                                                onClick={logout}
+                                                className="px-4 py-2 rounded-md block text-gray-800 text-left w-full"
+                                            >
+                                                Logout
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link
+                                                to="/login"
+                                                className="px-4 py-2 rounded-md block text-gray-800"
+                                            >
+                                                Login
+                                            </Link>
+                                            <Link
+                                                to="/register"
+                                                className="px-4 py-2 rounded-md block text-gray-800"
+                                            >
+                                                Register
+                                            </Link>
+                                        </>
                                     )}
                                 </div>
-                            ))}
-                        </nav>
-                    </div>
-
-                    {/* Search Bar - Mobile Only */}
-                    <AnimatePresence>
-                        {isSearchOpen && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.3 }}
-                                className="md:hidden mt-4"
-                            >
-                                <form onSubmit={handleSearch} className="flex">
-                                    <input
-                                        type="text"
-                                        placeholder="Search for products..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700"
-                                    >
-                                        <FaSearch />
-                                    </button>
-                                </form>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </header>
-
-            {/* Mobile Menu - Slide-in panel */}
-            <AnimatePresence>
-                {isMenuOpen && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 0.5 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="md:hidden fixed inset-0 bg-black z-40"
-                            onClick={() => setIsMenuOpen(false)}
-                        />
-                        <motion.div
-                            initial={{ x: '100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={{ duration: 0.3, ease: 'easeOut' }}
-                            className="md:hidden fixed right-0 top-0 h-full w-72 bg-white z-50 shadow-xl overflow-y-auto"
-                        >
-                            <div className="flex justify-between items-center p-4 border-b">
-                                <Link to="/" className="text-lg font-bold text-blue-600 flex items-center">
-                                    ShopEx
-                                </Link>
-                                <button
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="p-2 text-gray-600 hover:text-blue-600 focus:outline-none"
-                                >
-                                    <FaTimes />
-                                </button>
-                            </div>
-
-                            <nav className="p-4">
-                                <ul className="space-y-2">
-                                    {navItems.map(item => (
-                                        <li key={item.path}>
-                                            {item.hasMegaMenu ? (
-                                                <div>
-                                                    <button
-                                                        onClick={() => toggleMobileSubmenu(item.name)}
-                                                        className={`flex justify-between items-center w-full py-2 px-3 rounded-md ${location.pathname === item.path
-                                                                ? 'bg-blue-50 text-blue-600'
-                                                                : 'text-gray-700'
-                                                            }`}
-                                                    >
-                                                        <span>{item.name}</span>
-                                                        <FaChevronDown
-                                                            className={`transform transition-transform ${mobileSubmenuOpen === item.name ? 'rotate-180' : ''
-                                                                }`}
-                                                            size={12}
-                                                        />
-                                                    </button>
-
-                                                    <AnimatePresence>
-                                                        {mobileSubmenuOpen === item.name && (
-                                                            <motion.div
-                                                                initial={{ opacity: 0, height: 0 }}
-                                                                animate={{ opacity: 1, height: 'auto' }}
-                                                                exit={{ opacity: 0, height: 0 }}
-                                                                className="ml-4 mt-2 border-l-2 border-gray-100 pl-4"
-                                                            >
-                                                                <div className="mb-3">
-                                                                    <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">Featured</h3>
-                                                                    <ul className="space-y-1">
-                                                                        {item.megaMenuContent?.featured.map((subItem, index) => (
-                                                                            <li key={index}>
-                                                                                <Link
-                                                                                    to={subItem.path}
-                                                                                    className="text-gray-600 text-sm block py-1"
-                                                                                >
-                                                                                    {subItem.name}
-                                                                                </Link>
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                </div>
-
-                                                                <div>
-                                                                    <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">Categories</h3>
-                                                                    <ul className="space-y-1">
-                                                                        {item.megaMenuContent?.categories.slice(0, 6).map((category, index) => (
-                                                                            <li key={index}>
-                                                                                <Link
-                                                                                    to={category.path}
-                                                                                    className="text-gray-600 text-sm block py-1"
-                                                                                >
-                                                                                    {category.name}
-                                                                                </Link>
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                </div>
-                                                            </motion.div>
-                                                        )}
-                                                    </AnimatePresence>
-                                                </div>
-                                            ) : (
-                                                <Link
-                                                    to={item.path}
-                                                    className={`block py-2 px-3 rounded-md ${location.pathname === item.path
-                                                            ? 'bg-blue-50 text-blue-600'
-                                                            : 'text-gray-700'
-                                                        }`}
-                                                >
-                                                    {item.name}
-                                                </Link>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                <div className="mt-6 border-t pt-4">
-                                    <h3 className="text-sm font-medium text-gray-900 mb-2">My Account</h3>
-                                    <ul className="space-y-2">
-                                        {isAuthenticated ? (
-                                            <>
-                                                <li>
-                                                    <Link to="/account" className="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-md">
-                                                        Profile
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link to="/orders" className="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-md">
-                                                        Orders
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link to="/wishlist" className="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-md">
-                                                        Wishlist
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <button
-                                                        onClick={handleLogout}
-                                                        className="w-full text-left py-2 px-3 text-red-600 hover:bg-gray-50 rounded-md flex items-center"
-                                                    >
-                                                        <FaSignOutAlt className="mr-2" /> Sign out
-                                                    </button>
-                                                </li>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <li>
-                                                    <Link to="/login" className="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-md">
-                                                        Sign in
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link to="/register" className="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-md">
-                                                        Create account
-                                                    </Link>
-                                                </li>
-                                            </>
-                                        )}
-                                    </ul>
-                                </div>
-
-                                <div className="mt-6 border-t pt-4">
-                                    <h3 className="text-sm font-medium text-gray-900 mb-2">Help & Settings</h3>
-                                    <ul className="space-y-2">
-                                        <li>
-                                            <Link to="/help" className="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-md flex items-center">
-                                                <FaHeadset className="mr-2" /> Customer Support
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link to="/shipping" className="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-md flex items-center">
-                                                <FaTruck className="mr-2" /> Shipping Info
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link to="/returns" className="block py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-md flex items-center">
-                                                <FaBox className="mr-2" /> Returns & Refunds
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </div>
                             </nav>
-                        </motion.div>
-                    </>
+                        </div>
+                    </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Space to prevent content from being hidden under the fixed header */}
-            <div className={`${isScrolled ? 'h-16' : 'h-24'} md:h-36`}></div>
-        </>
+            {/* Search overlay */}
+            <AnimatePresence>
+                {searchOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20"
+                        onClick={() => setSearchOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ y: -20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -20, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="w-full max-w-2xl bg-white rounded-lg shadow-lg overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <form onSubmit={handleSearchSubmit} className="relative">
+                                <input
+                                    ref={searchInputRef}
+                                    type="text"
+                                    placeholder="Search products..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full py-4 pl-6 pr-12 text-lg text-gray-900 focus:outline-none"
+                                />
+                                <button
+                                    type="submit"
+                                    className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                                    aria-label="Search"
+                                >
+                                    <FaSearch className="w-5 h-5 text-gray-600 hover:text-blue-600 transition-colors" />
+                                </button>
+                            </form>
+                            <div className="py-3 px-6 bg-gray-50 border-t border-gray-100">
+                                <p className="text-sm text-gray-600">Popular searches: Smartphone, Laptop, Headphones</p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </header>
     );
 };
 
