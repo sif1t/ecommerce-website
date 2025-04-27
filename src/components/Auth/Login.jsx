@@ -5,15 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-// Country codes for popular regions - simplified list
-const POPULAR_COUNTRY_CODES = [
-    { code: '+1', country: 'US/CA' },
-    { code: '+44', country: 'UK' },
-    { code: '+91', country: 'IN' },
-    { code: '+61', country: 'AU' },
-    { code: '+65', country: 'SG' },
-];
+import { countryCodes, popularCountryCodes } from '../../utils/countryCodes'; // Import country codes
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -210,8 +202,8 @@ const Login = () => {
                         <div className="flex mb-6 border-b">
                             <button
                                 className={`flex-1 py-2 text-center font-medium ${loginMethod === 'email'
-                                        ? 'text-blue-600 border-b-2 border-blue-600'
-                                        : 'text-gray-500 hover:text-gray-700'
+                                    ? 'text-blue-600 border-b-2 border-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700'
                                     }`}
                                 onClick={() => switchLoginMethod('email')}
                             >
@@ -219,8 +211,8 @@ const Login = () => {
                             </button>
                             <button
                                 className={`flex-1 py-2 text-center font-medium ${loginMethod === 'phone'
-                                        ? 'text-blue-600 border-b-2 border-blue-600'
-                                        : 'text-gray-500 hover:text-gray-700'
+                                    ? 'text-blue-600 border-b-2 border-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700'
                                     }`}
                                 onClick={() => switchLoginMethod('phone')}
                             >
@@ -337,22 +329,21 @@ const Login = () => {
                                                 onChange={handleChange}
                                                 className="appearance-none border border-gray-300 rounded-l w-24 py-3 pl-10 pr-2 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             >
-                                                {POPULAR_COUNTRY_CODES.map(({ code, country }) => (
-                                                    <option key={code} value={code}>
+                                                {/* Popular codes first */}
+                                                {popularCountryCodes.map(({ code, country }) => (
+                                                    <option key={`popular-${code}`} value={code}>
                                                         {code} ({country})
                                                     </option>
                                                 ))}
-                                                {/* Add an option to view all country codes */}
                                                 <option value="" disabled>──────────</option>
-                                                <option value="+7">+7 (RU)</option>
-                                                <option value="+33">+33 (FR)</option>
-                                                <option value="+34">+34 (ES)</option>
-                                                <option value="+39">+39 (IT)</option>
-                                                <option value="+49">+49 (DE)</option>
-                                                <option value="+55">+55 (BR)</option>
-                                                <option value="+81">+81 (JP)</option>
-                                                <option value="+82">+82 (KR)</option>
-                                                <option value="+86">+86 (CN)</option>
+                                                {/* All other codes */}
+                                                {countryCodes
+                                                    .filter(cc => !popularCountryCodes.some(pcc => pcc.code === cc.code))
+                                                    .map(({ code, country }) => (
+                                                        <option key={code} value={code}>
+                                                            {code} ({country})
+                                                        </option>
+                                                    ))}
                                             </select>
                                             <input
                                                 type="tel"
