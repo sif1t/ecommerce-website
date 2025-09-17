@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaSearch, FaShoppingCart, FaUser, FaHeart, FaBars, FaTimes, FaChevronDown } from 'react-icons/fa';
+import { FaSearch, FaShoppingCart, FaUser, FaHeart, FaBars, FaTimes, FaChevronDown, FaGamepad } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -254,6 +254,17 @@ const Header = () => {
                         </Link>
 
                         <Link
+                            to="/game"
+                            className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-1 ${location.pathname === '/game'
+                                    ? 'text-blue-600'
+                                    : isScrolled ? 'text-gray-800 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                                }`}
+                        >
+                            <FaGamepad className="w-4 h-4" />
+                            Game
+                        </Link>
+
+                        <Link
                             to="/contact"
                             className={`px-4 py-2 rounded-md font-medium transition-colors ${location.pathname === '/contact'
                                     ? 'text-blue-600'
@@ -375,6 +386,13 @@ const Header = () => {
                                     className={`px-4 py-2 rounded-md ${location.pathname === '/about' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
                                 >
                                     About
+                                </Link>
+                                <Link
+                                    to="/game"
+                                    className={`px-4 py-2 rounded-md flex items-center gap-2 ${location.pathname === '/game' ? 'bg-blue-100 text-blue-700' : 'text-gray-800'}`}
+                                >
+                                    <FaGamepad className="w-4 h-4" />
+                                    Game
                                 </Link>
                                 <Link
                                     to="/contact"
