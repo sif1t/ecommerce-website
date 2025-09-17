@@ -664,6 +664,70 @@ const localData = {
             category: "jewelry",
             rating: 4.4,
             stock: 15
+        },
+
+        // Gaming Rifle Products - Toy/Game Category
+        {
+            id: 62,
+            name: "Nerf Elite 2.0 Commander Blaster",
+            price: 24.99,
+            description: "High-performance foam dart blaster with tactical rail and 6-dart clip",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.6,
+            stock: 20
+        },
+        {
+            id: 63,
+            name: "Laser Tag Battle Rifle",
+            price: 89.99,
+            description: "Professional laser tag rifle with LED display and sound effects",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.8,
+            stock: 12,
+            originalPrice: 109.99,
+            onSale: true
+        },
+        {
+            id: 64,
+            name: "Water Blaster Super Soaker",
+            price: 19.99,
+            description: "High-capacity water rifle perfect for summer fun and battles",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.3,
+            stock: 35
+        },
+        {
+            id: 65,
+            name: "Paintball Training Rifle",
+            price: 149.99,
+            description: "Entry-level paintball marker with safety gear included",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "sports",
+            rating: 4.5,
+            stock: 8
+        },
+        {
+            id: 66,
+            name: "Airsoft Spring Rifle",
+            price: 79.99,
+            description: "Realistic airsoft rifle for target practice and tactical games",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "sports",
+            rating: 4.4,
+            stock: 15
+        },
+        {
+            id: 67,
+            name: "Foam Battle Rifle Set",
+            price: 34.99,
+            description: "Complete foam battle set with 2 rifles and 24 soft darts",
+            imageUrl: "https://via.placeholder.com/300",
+            category: "toys",
+            rating: 4.7,
+            stock: 18
         }
     ],
     users: [
